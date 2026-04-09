@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Ventas - IGJ</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            background-color: #f4f4f4; 
+            margin: 0; 
+            padding: 40px 20px;
+        }
+        .contenedor {
+            background: white;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-top: 6px solid #D4AF37; /* Dorado IGJ */
+        }
+        h1 { color: #004581; margin-bottom: 5px; }
+        .fecha { color: #888; font-size: 1.1em; margin-bottom: 30px; }
+        
+        .tarjeta-resumen {
+            display: flex;
+            justify-content: space-between;
+            background-color: #e6f0fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid #004581;
+        }
+        .tarjeta-resumen h3 { margin: 0; color: #333; }
+        .tarjeta-resumen span { font-weight: bold; font-size: 1.2em; color: #004581; }
+        
+        .total-final {
+            background-color: #004581;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.5em;
+            margin-top: 25px;
+            font-weight: bold;
+        }
+        .volver-btn {
+            display: inline-block;
+            margin-top: 30px;
+            color: white;
+            background-color: #C41230; /* Rojo IGJ */
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <img src="https://gaussjordan.edu.mx/images/rrss/logo.webp" alt="Logo UGJ" style="max-width: 150px; margin-bottom: 20px;">
+        <h1>Corte de Caja Diario</h1>
+        <p class="fecha">Fecha de operaciones: <strong>{{ fecha }}</strong></p>
+
+        <div class="tarjeta-resumen">
+            <h3>💵 Pagos en Efectivo</h3>
+            <span id="monto-efectivo">${{ "%.2f"|format(total_efectivo) }}</span>
+        </div>
+
+        <div class="tarjeta-resumen" style="border-left-color: #D4AF37;">
+            <h3>💳 Pagos con Tarjeta</h3>
+            <span id="monto-tarjeta">${{ "%.2f"|format(total_tarjeta) }}</span>
+        </div>
+
+        <div class="total-final" id="monto-total">
+            Total Recaudado: ${{ "%.2f"|format(total_dia) }}
+        </div>
+
+        <a href="/admin" class="volver-btn">← Volver al Panel</a>
+        <a href="/logout" class="volver-btn" style="background-color: #C41230; color: white;">Cerrar Sesión</a>
+    </div>
+
+    <script>
+        async function actualizarVentas() {
+            try {
+                const respuesta = await fetch('/api/ventas');
+                
+                // Si la sesión expiró o hay un error, nos detenemos
+                if (!respuesta.ok) return; 
+
+                const datos = await respuesta.json();
+
+                // Actualizamos los textos usando los IDs, y .toFixed(2) para los decimales
+                document.getElementById('monto-efectivo').innerText = `$${datos.efectivo.toFixed(2)}`;
+                document.getElementById('monto-tarjeta').innerText = `$${datos.tarjeta.toFixed(2)}`;
+                document.getElementById('monto-total').innerText = `Total Recaudado: $${datos.total_dia.toFixed(2)}`;
+
+            } catch (error) {
+                console.error("Error al sincronizar ventas:", error);
+            }
+        }
+
+        // Actualizar cada 5 segundos (5000 ms)
+        setInterval(actualizarVentas, 5000);
+    </script>
+</body>
+</html>

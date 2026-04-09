@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cocina - Pedidos Pendientes</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header-cocina {
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            max-width: 120px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: #004581; /* Azul UGJ */
+            margin: 0;
+            font-size: 2.2em;
+        }
+
+        h2 {
+            color: #D4AF37; /* Dorado UGJ */
+            background-color: #004581;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 1.2em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .tabla-contenedor {
+            width: 80%;
+            max-width: 900px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #004581; /* Azul UGJ */
+            color: white;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 4px solid #D4AF37; /* Acento Dorado */
+        }
+
+        tr {
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        /* Columna del ID para que resalte */
+        td:first-child {
+            font-weight: bold;
+            color: #004581;
+            font-size: 1.2em;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #C41230; /* Rojo UGJ */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: transform 0.2s, background-color 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            background-color: #8B0E22; /* Rojo oscuro */
+            transform: scale(1.05);
+        }
+        
+        form {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-cocina">
+        <img src="https://gaussjordan.edu.mx/images/rrss/logo.webp" alt="Logo Universidad Gauss Jordan" class="logo">
+        <h1>Pantalla de Cocina</h1>
+        <h2>Pedidos en cola: {{ cantidad }}</h2>
+    </div>
+
+    <div class="tabla-contenedor">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Producto</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+
+        <tbody id="cuerpo-tabla-cocina">
+            {% for pedido in pedidos %}
+            <tr>
+                <td>#{{ pedido[0] }}</td>
+                <td>{{ pedido[1] }}</td>
+                <td>{{ pedido[2] }}</td>
+                <td>
+                    <form action="/pedido_listo/{{ pedido[0] }}" method="post">
+                        <button type="submit">Listo ✔</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+
+            {% if cantidad == 0 %}
+            <tr>
+                <td colspan="4" style="padding: 30px; color: #888; font-style: italic;">No hay pedidos pendientes. ¡Buen trabajo!</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+    <script>
+    async function actualizarCocina() {
+        try {
+            // Usamos la ruta que creamos anteriormente en app.py
+            const respuesta = await fetch('/api/pedidos');
+            const pedidos = await respuesta.json();
+
+            // Filtramos solo los pedidos con estado 'Pendiente'
+            const pendientes = pedidos.filter(p => p.estado === 'Pendiente');
+            
+            const tabla = document.getElementById('cuerpo-tabla-cocina');
+            const contador = document.querySelector('h2');
+
+            // 1. Actualizamos el contador de pedidos en el h2
+            contador.textContent = 'Pedidos en cola: ' + pendientes.length;
+
+            // 2. Limpiamos las filas viejas de la tabla
+            tabla.innerHTML = "";
+
+            if (pendientes.length === 0) {
+                tabla.innerHTML = `<tr><td colspan="4" style="padding: 30px; color: #888; font-style: italic;">No hay pedidos pendientes. ¡Buen trabajo!</td></tr>`;
+                return;
+            }
+
+            // 3. Insertamos las filas nuevas dinámicamente
+            pendientes.forEach(pedido => {
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td>#${pedido.id}</td>
+                    <td>${pedido.cliente}</td>
+                    <td>${pedido.producto}</td>
+                    <td>
+                        <form action="/pedido_listo/${pedido.id}" method="post">
+                            <button type="submit">Listo ✔</button>
+                        </form>
+                    </td>
+                `;
+                tabla.appendChild(fila);
+            });
+        } catch (error) {
+            console.error('Error al obtener los pedidos:', error);
+        }
+    }
+
+    // Actualizar cada 3 segundos para que sea más rápido que antes
+    setInterval(actualizarCocina, 3000);
+</script>
+
+</body>
+</html>

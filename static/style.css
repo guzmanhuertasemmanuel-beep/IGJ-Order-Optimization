@@ -1,0 +1,171 @@
+:root {
+    --azul-principal: #004581;
+    --rojo-acento: #C41230;
+    --dorado: #D4AF37;
+    --azul-claro: #e6f0fa;
+    --gris-suave: #f4f4f4;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--gris-suave);
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    margin: 0;
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    max-width: 600px;
+    width: 100%;
+}
+
+h1 { 
+    color: var(--azul-principal); 
+    margin-bottom: 30px; 
+    text-align: center; 
+}
+
+.section-title {
+    text-align: left;
+    font-weight: bold;
+    margin: 20px 0 10px;
+    font-size: 1.1em;
+    color: #333;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus {
+    border-color: var(--azul-principal);
+    outline: none;
+}
+
+/* Cuadrícula del Menú */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+/* Ocultar el radio button solo para el método de pago */
+.pay-item input[type="radio"] {
+    display: none;
+}
+
+/* Efecto al seleccionar el método de pago */
+.pay-item input[type="radio"]:checked + .pay-label {
+    border-color: var(--azul-principal);
+    background-color: var(--azul-claro);
+    color: var(--azul-principal);
+    font-weight: bold;
+}
+
+/* Estilos para el selector de cantidad de los productos */
+.qty-container {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.qty-input {
+    width: 60px;
+    padding: 8px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--azul-principal);
+}
+
+.qty-input:focus {
+    border-color: var(--azul-principal);
+    outline: none;
+}
+
+.menu-label, .pay-label {
+    display: block;
+    padding: 15px;
+    background: white;
+    border: 2px solid #eee;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.menu-label span {
+    display: block;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 5px;
+}
+
+.menu-item input[type="radio"]:checked + .menu-label,
+.pay-item input[type="radio"]:checked + .pay-label {
+    border-color: var(--azul-principal);
+    background-color: var(--azul-claro);
+    font-weight: bold;
+}
+
+/* Formularios y Botones */
+form {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;    
+    width: 100%;
+}
+
+form .section-title {
+    align-self: flex-start;
+    width: 100%;
+}
+
+.payment-options {
+    display: flex;
+    gap: 15px;
+    width: 100%; 
+    margin-bottom: 25px;
+    justify-content: center;
+}
+
+.pay-item { flex: 1; }
+
+button.submit-btn {
+    width: 100%;
+    max-width: 300px;
+    background-color: var(--rojo-acento);
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.3s;
+    margin-top: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+button.submit-btn:hover {
+    background-color: #8B0E22; /* Rojo más oscuro */
+    transform: scale(1.02);
+}

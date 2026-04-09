@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Acceso Restringido - IGJ</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            background-color: #f4f4f4; 
+            margin: 0; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-caja {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-top: 6px solid #C41230; /* Rojo UGJ para alerta */
+            width: 100%;
+            max-width: 350px;
+        }
+        h2 { color: #004581; margin-bottom: 20px; }
+        input[type="password"] {
+            width: 90%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            text-align: center;
+        }
+        button {
+            background-color: #004581;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover { background-color: #002d5c; }
+        .error { color: #C41230; font-weight: bold; margin-bottom: 15px; }
+        .volver { display: block; margin-top: 20px; color: #888; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="login-caja">
+        <img src="https://gaussjordan.edu.mx/images/rrss/logo.webp" alt="Logo UGJ" style="max-width: 120px; margin-bottom: 10px;">
+        <h2>Acceso Administrativo</h2>
+        
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <form action="/login" method="POST">
+            <input type="password" name="password" placeholder="Contraseña maestra" required>
+            <button type="submit">Entrar</button>
+        </form>
+        
+        <a href="/" class="volver">← Volver a la cafetería</a>
+    </div>
+
+</body>
+</html>

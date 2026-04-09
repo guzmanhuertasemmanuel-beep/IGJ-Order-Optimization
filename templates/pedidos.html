@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Tablero de Pedidos - IGJ</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            text-align: center; 
+            background-color: #f4f4f4; 
+        }
+
+        .header { 
+            background-color: white; 
+            color: #004581; 
+            padding: 15px;
+            border-bottom: 5px solid #D4AF37;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            max-width: 140px;
+            vertical-align: middle;
+        }
+
+        .header h1 {
+            display: inline-block;
+            margin: 0 0 0 20px;
+            vertical-align: middle;
+            font-size: 2.2em;
+        }
+        
+        .tablero { 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 30px 20px; 
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 20px;
+        }
+        
+        .columna { 
+            width: 48%; 
+            background: white; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            min-height: 70vh; 
+            overflow: hidden; 
+            border: 2px solid #eaeaea;
+        }
+        
+        .titulo-preparacion { 
+            background-color: #004581; 
+            color: white; 
+            padding: 20px; 
+            margin: 0; 
+            font-size: 1.8em;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .titulo-listo { 
+            background-color: #C41230; 
+            color: white; 
+            padding: 20px; 
+            margin: 0; 
+            font-size: 1.8em;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .lista-ids { 
+            list-style: none; 
+            padding: 0; 
+            font-size: 4em; 
+            font-weight: bold; 
+            margin: 0;
+        }
+
+        .lista-ids li { 
+            padding: 15px 0; 
+            border-bottom: 2px dashed #eee; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .preparacion-item { color: #004581; }
+        .listo-item { 
+            color: #C41230; 
+            animation: parpadeo-latido 1.5s infinite; 
+        }
+
+        @keyframes parpadeo-latido {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .volver-btn {
+            display: inline-block;
+            margin-top: 10px;
+            margin-bottom: 30px;
+            color: #004581;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2em;
+            padding: 10px 20px;
+            border: 2px solid #004581;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .volver-btn:hover {
+            background-color: #004581;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <img src="https://gaussjordan.edu.mx/images/rrss/logo.webp" alt="Logo Universidad Gauss Jordan" class="logo">
+        <h1>Tablero de Pedidos</h1>
+    </div>
+
+    <div class="tablero">
+        <div class="columna">
+    <h2 class="titulo-preparacion">En preparación</h2>
+    <ul class="lista-ids" id="lista-preparacion">
+        {% for pedido in pedidos %}
+            {% if pedido[3] == 'Pendiente' %}
+                <li class="preparacion-item">#{{ pedido[0] }}</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+
+        <div class="columna">
+    <h2 class="titulo-listo">Listo para recoger</h2>
+    <ul class="lista-ids" id="lista-listo">
+        {% for pedido in pedidos %}
+            {% if pedido[3] == 'Listo' %}
+                <li class="listo-item">#{{ pedido[0] }}</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+    </div>
+
+    <a href="/" class="volver-btn">← Volver al Menú</a>
+    <script>
+        async function actualizarTablero() {
+            try {
+                // Consultamos la ruta que acabas de crear en app.py
+                const respuesta = await fetch('/api/pedidos');
+                const pedidos = await respuesta.json();
+
+                const listaPrep = document.getElementById('lista-preparacion');
+                const listaListo = document.getElementById('lista-listo');
+
+                // Limpiamos las listas actuales para no duplicar
+                listaPrep.innerHTML = "";
+                listaListo.innerHTML = "";
+
+                // Recorremos los datos nuevos y los dibujamos
+                pedidos.forEach(pedido => {
+                    const li = document.createElement('li');
+                    li.innerText = `#${pedido.id}`;
+
+                    if (pedido.estado === 'Pendiente') {
+                        li.className = "preparacion-item";
+                        listaPrep.appendChild(li);
+                    } else if (pedido.estado === 'Listo') {
+                        li.className = "listo-item";
+                        listaListo.appendChild(li);
+                    }
+                });
+            } catch (error) {
+                console.error("Error al actualizar el tablero:", error);
+            }
+        }
+
+        // Ejecutar la función cada 3 segundos (3000 milisegundos)
+        setInterval(actualizarTablero, 3000);
+    </script>
+</body>
+</html>

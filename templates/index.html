@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafetería IGJ - Pedidos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <div style="text-align: center; margin-bottom: 15px;">
+        <img src="https://gaussjordan.edu.mx/images/rrss/logo.webp" alt="Logo Universidad Gauss Jordan" style="max-width: 180px; height: auto;">
+    </div>
+
+    <h1>Bienvenido a Cafetería IGJ</h1>
+
+    <form action="/nuevo_pedido" method="POST">
+        
+        <div class="section-title">1. ¿Cuál es tu nombre?</div>
+        <input type="text" name="cliente" placeholder="Escribe tu nombre aquí..." required>
+        
+        <div class="section-title">2. Selecciona tu pedido</div>
+        <div class="menu-grid">
+        {% if productos %}
+            {% for producto in productos %}
+            <div class="menu-item">
+                <div class="menu-label">
+                    {{ producto[0] }} <br>
+                    <span>${{ producto[1] }}</span>
+                    
+                    <div class="qty-container">
+                        <label>Cantidad:</label>
+                        <input type="number" name="cantidad_{{ producto[0] }}" min="0" max="10" value="0" class="qty-input" data-precio="{{ producto[1] }}" oninput="calcularTotal()">
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No hay productos disponibles en este momento.</p>
+        {% endif %}
+        </div>
+
+        <div style="text-align: center; margin: 20px 0; padding: 15px; background-color: var(--azul-claro); border-radius: 10px; border: 2px solid var(--dorado);">
+            <h2 style="margin: 0; color: var(--azul-principal);">Total a pagar: $<span id="total-etiqueta">0.0</span></h2>
+        </div>
+
+        <div class="section-title">3. Método de pago</div>
+        <div class="payment-options">
+            <div class="pay-item">
+                <input type="radio" name="metodo_pago" id="pago1" value="efectivo" checked>
+                <label class="pay-label" for="pago1">💵 Efectivo</label>
+            </div>
+            <div class="pay-item">
+                <input type="radio" name="metodo_pago" id="pago2" value="tarjeta">
+                <label class="pay-label" for="pago2">💳 Tarjeta</label>
+            </div>
+        </div>
+        
+        <script>
+            function calcularTotal() {
+                let total = 0;
+                let inputs = document.querySelectorAll('.qty-input');
+                
+                inputs.forEach(function(input) {
+                    let cantidad = parseInt(input.value) || 0;
+                    let precio = parseFloat(input.getAttribute('data-precio'));
+                    total += cantidad * precio;
+                });
+
+                document.getElementById('total-etiqueta').innerText = total.toFixed(1);
+            }
+        </script>
+
+        <button type="submit" class="submit-btn">Enviar pedido</button>
+    </form>
+</div>
+
+</body>
+</html>
