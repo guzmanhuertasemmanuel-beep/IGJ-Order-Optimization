@@ -1,4 +1,4 @@
-# README: IGJ Order Optimization
+# IGJ Order Optimization
 
 ## 1. Descripción del proyecto
 
