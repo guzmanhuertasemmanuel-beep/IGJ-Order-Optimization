@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, jsonify
 from db_manager import conectar_db
 import datetime
 
@@ -61,3 +61,50 @@ def nuevo_pedido():
     conexion.close()
 
     return render_template("confirmacion.html", total=total_pagar)
+from flask import jsonify # Añade esto a tus importaciones arriba
+
+# ... código existente ...
+
+@cliente_bp.route("/api/nuevo_pedido", methods=["POST"])
+def api_nuevo_pedido():
+    # request.get_json() convierte el texto JSON de Java en un diccionario de Python
+    datos = request.get_json()
+
+    if not datos:
+        return jsonify({"error": "No se recibió información en formato JSON"}), 400
+
+    # Extraemos los datos enviados desde el App.java
+    cliente = datos.get("nombre_cliente")
+    producto = datos.get("producto")
+    metodo_pago = datos.get("metodo_pago")
+    total = datos.get("total")
+
+    # Generamos la fecha y hora actuales
+    fecha = datetime.date.today()
+    hora = datetime.datetime.now().strftime("%H:%M:%S")
+
+    # Guardamos en la base de datos usando tu db_manager
+    conexion = conectar_db()
+    cursor = conexion.cursor()
+
+    try:
+        cursor.execute("""
+        INSERT INTO Pedidos (nombre_cliente, producto, fecha_pedido, hora_pedido, estado, metodo_pago, total)
+        VALUES (?, ?, ?, ?, 'Pendiente', ?, ?)
+        """, (cliente, producto, fecha, hora, metodo_pago, total))
+        
+        conexion.commit()
+    except Exception as e:
+        conexion.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conexion.close()
+
+    # Respondemos a la app de Java confirmando la operación
+    return jsonify({
+        "mensaje": "¡Pedido registrado exitosamente en la base de datos!",
+        "cliente": cliente,
+        "total": total
+    }), 201
+
+# ... código existente ...
