@@ -2,7 +2,12 @@ from flask import Blueprint, render_template, request, jsonify
 from db_manager import conectar_db
 import datetime
 
+# ¡Solo creamos el Blueprint UNA VEZ!
 cliente_bp = Blueprint('cliente', __name__)
+
+# ==========================================
+# RUTAS WEB (Para el navegador y HTML)
+# ==========================================
 
 @cliente_bp.route("/")
 def inicio():
@@ -61,50 +66,49 @@ def nuevo_pedido():
     conexion.close()
 
     return render_template("confirmacion.html", total=total_pagar)
-from flask import jsonify # Añade esto a tus importaciones arriba
 
-# ... código existente ...
+# ==========================================
+# RUTAS API (Para la aplicación móvil de Java)
+# ==========================================
+
+@cliente_bp.route("/api/menu", methods=["GET"])
+def api_get_menu():
+    try:
+        conexion = conectar_db()
+        cursor = conexion.cursor()
+        # Solo traemos productos disponibles
+        cursor.execute("SELECT id_producto, nombre, precio, categoria FROM Productos WHERE disponible = 1")
+        columnas = [column[0] for column in cursor.description]
+        productos = [dict(zip(columnas, row)) for row in cursor.fetchall()]
+        conexion.close()
+        return jsonify(productos), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @cliente_bp.route("/api/nuevo_pedido", methods=["POST"])
 def api_nuevo_pedido():
-    # request.get_json() convierte el texto JSON de Java en un diccionario de Python
-    datos = request.get_json()
-
-    if not datos:
-        return jsonify({"error": "No se recibió información en formato JSON"}), 400
-
-    # Extraemos los datos enviados desde el App.java
-    cliente = datos.get("nombre_cliente")
-    producto = datos.get("producto")
-    metodo_pago = datos.get("metodo_pago")
-    total = datos.get("total")
-
-    # Generamos la fecha y hora actuales
-    fecha = datetime.date.today()
-    hora = datetime.datetime.now().strftime("%H:%M:%S")
-
-    # Guardamos en la base de datos usando tu db_manager
-    conexion = conectar_db()
-    cursor = conexion.cursor()
-
     try:
+        datos = request.get_json() 
+        
+        nombre_cliente = datos.get('nombre_cliente')
+        producto = datos.get('producto')
+        metodo_pago = datos.get('metodo_pago')
+        total = datos.get('total')
+        
+        fecha_actual = datetime.date.today().strftime("%Y-%m-%d")
+        hora_actual = datetime.datetime.now().strftime("%H:%M:%S")
+        
+        conexion = conectar_db()
+        cursor = conexion.cursor()
+        
         cursor.execute("""
-        INSERT INTO Pedidos (nombre_cliente, producto, fecha_pedido, hora_pedido, estado, metodo_pago, total)
-        VALUES (?, ?, ?, ?, 'Pendiente', ?, ?)
-        """, (cliente, producto, fecha, hora, metodo_pago, total))
+            INSERT INTO Pedidos (nombre_cliente, producto, fecha_pedido, hora_pedido, estado, metodo_pago, total)
+            VALUES (?, ?, ?, ?, 'Pendiente', ?, ?)
+        """, (nombre_cliente, producto, fecha_actual, hora_actual, metodo_pago, total))
         
         conexion.commit()
-    except Exception as e:
-        conexion.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally:
         conexion.close()
-
-    # Respondemos a la app de Java confirmando la operación
-    return jsonify({
-        "mensaje": "¡Pedido registrado exitosamente en la base de datos!",
-        "cliente": cliente,
-        "total": total
-    }), 201
-
-# ... código existente ...
+        
+        return jsonify({"mensaje": "Pedido recibido en la cocina del IGJ"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

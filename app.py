@@ -10,6 +10,7 @@ app = Flask(__name__)
 app.secret_key = "super_secreta_igj_2026"
 
 # Registramos las rutas en la aplicación principal
+# Agregamos el prefijo /api para que actúe como paraguas de las rutas móviles
 app.register_blueprint(cliente_bp)
 app.register_blueprint(cocina_bp)
 app.register_blueprint(admin_bp)
