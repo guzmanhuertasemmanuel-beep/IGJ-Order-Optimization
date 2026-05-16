@@ -7,28 +7,16 @@ cocina_bp = Blueprint('cocina', __name__)
 
 @cocina_bp.route("/pedidos")
 def ver_pedidos():
+    # Abrimos la base de datos
     conexion = conectar_db()
     cursor = conexion.cursor()
     
-    # Auto-limpieza
-    cursor.execute("SELECT id_pedido, timestamp_listo FROM Pedidos WHERE estado='Listo'")
-    listos = cursor.fetchall()
-    ahora = datetime.datetime.now()
-    
-    for pedido in listos:
-        id_pedido = pedido[0]
-        timestamp_str = pedido[1]
-        if timestamp_str:
-            tiempo_listo = datetime.datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
-            if (ahora - tiempo_listo).total_seconds() >= 300: 
-                cursor.execute("UPDATE Pedidos SET estado='Entregado' WHERE id_pedido=?", (id_pedido,))
-    
-    conexion.commit()
-    
+    # Traemos de forma directa solo los pedidos activos para mostrarlos en la UI de la web
     cursor.execute("SELECT id_pedido, nombre_cliente, producto, estado FROM Pedidos WHERE estado != 'Entregado' ORDER BY id_pedido ASC")
     pedidos = cursor.fetchall()
     conexion.close()
     
+    # Renderizamos la plantilla con los datos actualizados
     return render_template("pedidos.html", pedidos=pedidos)
 
 @cocina_bp.route("/api/pedidos")
