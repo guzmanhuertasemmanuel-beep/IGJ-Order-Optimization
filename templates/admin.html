@@ -2,252 +2,94 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Administración de Menú - IGJ</title>
-    <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            text-align: center; 
-            margin: 0; 
-            padding: 20px;
-            background-color: #f4f4f4; /* Gris suave de fondo */
-        }
-
-        .header-admin {
-            margin-bottom: 30px;
-        }
-
-        .logo {
-            max-width: 120px;
-            margin-bottom: 10px;
-        }
-
-        h1 { 
-            color: #004581; /* Azul UGJ */
-            margin: 0;
-            font-size: 2.2em;
-        }
-
-        h2, h3 {
-            color: #004581;
-        }
-
-        /* Estilo de tarjeta para el formulario */
-        .formulario { 
-            background: white; 
-            padding: 30px; 
-            display: inline-block; 
-            border-radius: 12px; 
-            margin-bottom: 40px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border-top: 6px solid #D4AF37; /* Acento Dorado */
-        }
-
-        form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
-            align-items: center;
-        }
-
-        input, select { 
-            padding: 12px; 
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, select:focus {
-            border-color: #004581;
-            outline: none;
-        }
-
-        button { 
-            background-color: #004581; /* Azul principal para acciones seguras */
-            color: white; 
-            border: none; 
-            padding: 12px 25px; 
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer; 
-            border-radius: 8px; 
-            transition: transform 0.2s, background-color 0.3s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        button:hover { 
-            background-color: #002d5c; /* Azul más oscuro */
-            transform: scale(1.05);
-        }
-
-        /* Contenedor de la tabla para bordes redondeados */
-        .tabla-contenedor {
-            width: 90%;
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-
-        table { 
-            border-collapse: collapse; 
-            width: 100%; 
-        }
-
-        th, td { 
-            padding: 15px; 
-            text-align: center;
-        }
-
-        th { 
-            background-color: #004581; 
-            color: white; 
-            border-bottom: 4px solid #D4AF37;
-            text-transform: uppercase;
-            font-size: 0.9em;
-            letter-spacing: 1px;
-        }
-
-        tr {
-            border-bottom: 1px solid #eee;
-            transition: background-color 0.2s;
-        }
-
-        tr:hover {
-            background-color: #f9f9f9;
-        }
-
-        .estado-disponible {
-            color: #28a745;
-            font-weight: bold;
-        }
-
-        .estado-agotado {
-            color: #C41230; /* Rojo UGJ */
-            font-weight: bold;
-        }
-
-        /* --- NUEVOS ESTILOS PARA LOS BOTONES DE ACCIÓN --- */
-        .btn-accion { 
-            padding: 8px 12px; 
-            font-size: 0.9em; 
-            border-radius: 5px; 
-            margin: 2px; 
-        }
-        
-        .btn-estado { 
-            background-color: #D4AF37; 
-            color: #333; 
-        }
-        
-        .btn-estado:hover { 
-            background-color: #b5952f; 
-            color: white; 
-        }
-        
-        .btn-eliminar { 
-            background-color: #C41230; 
-        }
-        
-        .btn-eliminar:hover { 
-            background-color: #8B0E22; 
-        }
-
-        .acciones-form { 
-            display: inline-block; 
-            margin: 0; 
-        }
-        /* ------------------------------------------------- */
-
-        .volver-btn {
-            display: inline-block;
-            margin-top: 30px;
-            color: #004581;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.1em;
-            padding: 10px 20px;
-            border: 2px solid #004581;
-            border-radius: 8px;
-            transition: 0.3s;
-        }
-
-        .volver-btn:hover {
-            background-color: #004581;
-            color: white;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Cafetería IGJ</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body style="max-width: 1100px; margin: 0 auto; padding: 40px 20px;">
 
     <div class="header-admin">
-        <img src="https://imgs.search.brave.com/1tFRxOQSQTKZiRlQLvilQSyiVtJ3yPprGSEWonnEvO8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9hcHJl/bmRlLmdvYi5teC93/cC1jb250ZW50L3Vw/bG9hZHMvMjAyNC8w/MS9nYXVzLTEucG5n" alt="Logo Universidad Gauss Jordan" class="logo">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='gaus-1.png') }}" alt="Logo Universidad Gauss Jordan" class="logo-img">
+        </div>
         <h1>Panel de Administración</h1>
     </div>
 
-    <div class="formulario">
-        <h3>Agregar Nuevo Producto</h3>
-        <form action="/agregar_producto" method="POST">
-            <input type="text" name="nombre" placeholder="Nombre del producto" required>
-            <input type="number" step="0.01" name="precio" placeholder="Precio (ej: 25.50)" required>
-            <select name="categoria">
-                <option value="Comida">Comida</option>
-                <option value="Bebida">Bebida</option>
-                <option value="Postre">Postre</option>
-            </select>
-            <button type="submit">Guardar Producto</button>
-        </form>
+    <div style="text-align: center;">
+        <div class="formulario-admin-box">
+            <h3>Agregar Nuevo Producto</h3>
+            <form action="/agregar_producto" method="POST">
+                <div class="form-input-container">
+                    <input type="text" name="nombre" placeholder="Nombre del producto" required>
+                </div>
+                <div class="form-input-container">
+                    <input type="number" step="0.01" name="precio" placeholder="Precio (ej: 25.50)" required>
+                </div>
+                <div class="form-input-container">
+                    <select name="categoria">
+                        <option value="Comida">Comida</option>
+                        <option value="Bebida">Bebida</option>
+                        <option value="Postre">Postre</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar Producto</button>
+            </form>
+        </div>
     </div>
 
-    <h2>Productos Actuales</h2>
-    <div class="tabla-contenedor">
+    <h2 style="margin-bottom: 20px; font-family: var(--fuente-titulos); text-align: left;">Productos Actuales</h2>
+    <div class="table-wrapper">
         <table>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Precio</th>
-                <th>Categoría</th>
-                <th>Estado</th>
-                <th>Acciones</th> </tr>
-            {% for producto in productos %}
-            <tr>
-                <td><strong>#{{ producto[0] }}</strong></td>
-                <td>{{ producto[1] }}</td>
-                <td>${{ "%.2f"|format(producto[2]) }}</td>
-                <td>{{ producto[3] }}</td>
-                <td>
-                    {% if producto[4] == 1 %}
-                        <span class="estado-disponible">Disponible</span>
-                    {% else %}
-                        <span class="estado-agotado">Agotado</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <form action="/estado_producto/{{ producto[0] }}" method="POST" class="acciones-form">
-                        <button type="submit" class="btn-accion btn-estado">
-                            {% if producto[4] == 1 %}Agotar{% else %}Reactivar{% endif %}
-                        </button>
-                    </form>
-                    
-                    <form action="/eliminar_producto/{{ producto[0] }}" method="POST" class="acciones-form" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este producto permanentemente?');">
-                        <button type="submit" class="btn-accion btn-eliminar">Eliminar</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-            {% if not productos %}
-            <tr>
-                <td colspan="6" style="padding: 30px; color: #888; font-style: italic;">No hay productos registrados en el menú.</td>
-            </tr>
-            {% endif %}
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Categoría</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td><strong>#{{ producto[0] }}</strong></td>
+                    <td style="text-align: left; font-weight: 500;">{{ producto[1] }}</td>
+                    <td style="font-weight: 600; color: var(--azul-principal);">${{ "%.2f"|format(producto[2]) }}</td>
+                    <td><span class="badge badge-info">{{ producto[3] }}</span></td>
+                    <td>
+                        {% if producto[4] == 1 %}
+                            <span class="badge badge-success">Disponible</span>
+                        {% else %}
+                            <span class="badge badge-danger">Agotado</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form action="/estado_producto/{{ producto[0] }}" method="POST" class="acciones-form">
+                            <button type="submit" class="btn btn-tabla btn-tabla-estado">
+                                {% if producto[4] == 1 %}Agotar{% else %}Reactivar{% endif %}
+                            </button>
+                        </form>
+                        
+                        <form action="/eliminar_producto/{{ producto[0] }}" method="POST" class="acciones-form" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este producto permanentemente?');">
+                            <button type="submit" class="btn btn-tabla btn-tabla-eliminar">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not productos %}
+                <tr>
+                    <td colspan="6" style="padding: 30px; color: var(--texto-mutado); font-style: italic;">No hay productos registrados en el menú.</td>
+                </tr>
+                {% endif %}
+            </tbody>
         </table>
     </div>
 
-    <a href="/" class="volver-btn">← Volver al Inicio</a>
-    <a href="/logout" class="volver-btn" style="background-color: #C41230; color: white; border-color: #C41230;">Cerrar Sesión</a>
+    <div style="text-align: center; margin-top: 40px; margin-bottom: 30px;">
+        <a href="/" class="btn btn-outline" style="margin-right: 10px;">← Volver al Inicio</a>
+        <a href="/logout" class="btn btn-accent">Cerrar Sesión</a>
+    </div>
     
 </body>
 </html>

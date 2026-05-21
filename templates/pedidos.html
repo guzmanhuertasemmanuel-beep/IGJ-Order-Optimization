@@ -2,154 +2,45 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Tablero de Pedidos - IGJ</title>
-    <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; 
-            text-align: center; 
-            background-color: #f4f4f4; 
-        }
-
-        .header { 
-            background-color: white; 
-            color: #004581; 
-            padding: 15px;
-            border-bottom: 5px solid #D4AF37;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        .logo {
-            max-width: 140px;
-            vertical-align: middle;
-        }
-
-        .header h1 {
-            display: inline-block;
-            margin: 0 0 0 20px;
-            vertical-align: middle;
-            font-size: 2.2em;
-        }
-        
-        .tablero { 
-            display: flex; 
-            justify-content: space-around; 
-            padding: 30px 20px; 
-            max-width: 1200px;
-            margin: 0 auto;
-            gap: 20px;
-        }
-        
-        .columna { 
-            width: 48%; 
-            background: white; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-            min-height: 70vh; 
-            overflow: hidden; 
-            border: 2px solid #eaeaea;
-        }
-        
-        .titulo-preparacion { 
-            background-color: #004581; 
-            color: white; 
-            padding: 20px; 
-            margin: 0; 
-            font-size: 1.8em;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .titulo-listo { 
-            background-color: #C41230; 
-            color: white; 
-            padding: 20px; 
-            margin: 0; 
-            font-size: 1.8em;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        
-        .lista-ids { 
-            list-style: none; 
-            padding: 0; 
-            font-size: 4em; 
-            font-weight: bold; 
-            margin: 0;
-        }
-
-        .lista-ids li { 
-            padding: 15px 0; 
-            border-bottom: 2px dashed #eee; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .preparacion-item { color: #004581; }
-        .listo-item { 
-            color: #C41230; 
-            animation: parpadeo-latido 1.5s infinite; 
-        }
-
-        @keyframes parpadeo-latido {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.05); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
-        .volver-btn {
-            display: inline-block;
-            margin-top: 10px;
-            margin-bottom: 30px;
-            color: #004581;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.2em;
-            padding: 10px 20px;
-            border: 2px solid #004581;
-            border-radius: 8px;
-            transition: 0.3s;
-        }
-
-        .volver-btn:hover {
-            background-color: #004581;
-            color: white;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero de Pedidos - Cafetería IGJ</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body style="padding: 0; background-color: var(--gris-fondo);">
 
-    <div class="header">
-        <img src="https://imgs.search.brave.com/1tFRxOQSQTKZiRlQLvilQSyiVtJ3yPprGSEWonnEvO8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9hcHJl/bmRlLmdvYi5teC93/cC1jb250ZW50L3Vw/bG9hZHMvMjAyNC8w/MS9nYXVzLTEucG5n" alt="Logo Universidad Gauss Jordan" class="logo">
+    <div class="header-dashboard">
+        <img src="{{ url_for('static', filename='gaus-1.png') }}" alt="Logo Universidad Gauss Jordan" class="logo-img" style="max-width: 110px; margin: 0;">
         <h1>Tablero de Pedidos</h1>
     </div>
 
-    <div class="tablero">
-        <div class="columna">
-    <h2 class="titulo-preparacion">En preparación</h2>
-    <ul class="lista-ids" id="lista-preparacion">
-        {% for pedido in pedidos %}
-            {% if pedido[3] == 'Pendiente' %}
-                <li class="preparacion-item">#{{ pedido[0] }}</li>
-            {% endif %}
-        {% endfor %}
-    </ul>
-</div>
+    <div class="tablero-grid">
+        <div class="columna-tablero">
+            <h2 class="titulo-prep">En preparación</h2>
+            <ul class="lista-ids" id="lista-preparacion">
+                {% for pedido in pedidos %}
+                    {% if pedido[3] == 'Pendiente' %}
+                        <li class="preparacion-item">#{{ pedido[0] }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
 
-        <div class="columna">
-    <h2 class="titulo-listo">Listo para recoger</h2>
-    <ul class="lista-ids" id="lista-listo">
-        {% for pedido in pedidos %}
-            {% if pedido[3] == 'Listo' %}
-                <li class="listo-item">#{{ pedido[0] }}</li>
-            {% endif %}
-        {% endfor %}
-    </ul>
-</div>
+        <div class="columna-tablero">
+            <h2 class="titulo-listo">Listo para recoger</h2>
+            <ul class="lista-ids" id="lista-listo">
+                {% for pedido in pedidos %}
+                    {% if pedido[3] == 'Listo' %}
+                        <li class="listo-item">#{{ pedido[0] }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 
-    <a href="/" class="volver-btn">← Volver al Menú</a>
+    <div style="text-align: center; margin-bottom: 40px;">
+        <a href="/" class="btn btn-outline">← Volver al Menú</a>
+    </div>
+
     <script>
         async function actualizarTablero() {
             try {

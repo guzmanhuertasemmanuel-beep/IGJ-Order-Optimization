@@ -9,8 +9,8 @@
 <body>
 
 <div class="container">
-    <div style="text-align: center; margin-bottom: 15px;">
-        <img src="https://imgs.search.brave.com/1tFRxOQSQTKZiRlQLvilQSyiVtJ3yPprGSEWonnEvO8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9hcHJl/bmRlLmdvYi5teC93/cC1jb250ZW50L3Vw/bG9hZHMvMjAyNC8w/MS9nYXVzLTEucG5n" alt="Logo Universidad Gauss Jordan" style="max-width: 180px; height: auto;">
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='gaus-1.png') }}" alt="Logo Universidad Gauss Jordan" class="logo-img">
     </div>
 
     <h1>Bienvenido a Cafetería IGJ</h1>
@@ -41,8 +41,8 @@
         {% endif %}
         </div>
 
-        <div style="text-align: center; margin: 20px 0; padding: 15px; background-color: var(--azul-claro); border-radius: 10px; border: 2px solid var(--dorado);">
-            <h2 style="margin: 0; color: var(--azul-principal);">Total a pagar: $<span id="total-etiqueta">0.0</span></h2>
+        <div class="total-box-highlight">
+            <h2>Total a pagar: $<span id="total-etiqueta">0.0</span></h2>
         </div>
 
         <div class="section-title">3. Método de pago</div>
@@ -72,7 +72,7 @@
             }
         </script>
 
-        <button type="submit" class="submit-btn">Enviar pedido</button>
+        <button type="submit" class="btn btn-accent" style="max-width: 300px; width: 100%;">Enviar pedido</button>
     </form>
 </div>
 

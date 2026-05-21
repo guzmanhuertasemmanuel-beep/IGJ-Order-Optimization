@@ -2,82 +2,9 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Pedido Confirmado</title>
-    <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f4f4f4; /* Gris suave de fondo */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh; /* Ocupa toda la altura de la pantalla */
-            margin: 0;
-        }
-        
-        .tarjeta-confirmacion {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 450px;
-            width: 90%;
-            border-top: 6px solid #004581; /* Acento Azul UGJ */
-            border-bottom: 6px solid #D4AF37; /* Acento Dorado UGJ */
-        }
-
-        .logo {
-            max-width: 160px;
-            margin-bottom: 20px;
-        }
-
-        h1 { 
-            color: #004581; /* Azul principal */
-            margin-top: 0;
-        }
-
-        p {
-            color: #555;
-            font-size: 1.1em;
-        }
-
-        .caja-total {
-            background-color: #e6f0fa; /* Azul muy clarito */
-            border: 2px solid #D4AF37; /* Borde dorado */
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-
-        .caja-total h2 {
-            margin: 0;
-            color: #004581;
-            font-size: 1.6em;
-        }
-
-        .texto-redireccion {
-            color: #888;
-            font-size: 0.9em;
-            margin-bottom: 20px;
-        }
-
-        .boton { 
-            display: inline-block; 
-            padding: 12px 25px; 
-            background-color: #C41230; /* Rojo acento UGJ */
-            color: white; 
-            text-decoration: none; 
-            border-radius: 8px; 
-            font-weight: bold;
-            transition: background-color 0.3s, transform 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .boton:hover {
-            background-color: #8B0E22; /* Rojo más oscuro al pasar el mouse */
-            transform: scale(1.05);
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido Confirmado - Cafetería IGJ</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script>
         // Redirige automáticamente al inicio después de 5 segundos
         setTimeout(function(){
@@ -85,21 +12,23 @@
         }, 5000);
     </script>
 </head>
-<body>
+<body class="centered-layout">
 
     <div class="tarjeta-confirmacion">
-        <img src="https://imgs.search.brave.com/1tFRxOQSQTKZiRlQLvilQSyiVtJ3yPprGSEWonnEvO8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9hcHJl/bmRlLmdvYi5teC93/cC1jb250ZW50L3Vw/bG9hZHMvMjAyNC8w/MS9nYXVzLTEucG5n" alt="Logo Universidad Gauss Jordan" class="logo">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='gaus-1.png') }}" alt="Logo Universidad Gauss Jordan" class="logo-img">
+        </div>
         
         <h1>¡Pedido recibido!</h1>
-        <p>Tu orden está siendo procesada en cocina.</p>
+        <p style="color: var(--texto-secundario); font-size: 1.1rem; margin-bottom: 10px;">Tu orden está siendo procesada en cocina.</p>
         
-        <div class="caja-total">
+        <div class="caja-total-confirmacion">
             <h2>Total a pagar: ${{ total }}</h2>
         </div>
         
-        <p class="texto-redireccion">Serás redirigido en 5 segundos...</p>
+        <p class="texto-redireccion">Serás redirigido al menú en 5 segundos...</p>
         
-        <a href="/" class="boton">Volver ahora</a>
+        <a href="/" class="btn btn-accent" style="width: 100%; max-width: 250px;">Volver ahora</a>
     </div>
 
 </body>

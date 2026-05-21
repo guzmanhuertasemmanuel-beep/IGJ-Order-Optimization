@@ -2,83 +2,37 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Reporte de Ventas - IGJ</title>
-    <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            text-align: center; 
-            background-color: #f4f4f4; 
-            margin: 0; 
-            padding: 40px 20px;
-        }
-        .contenedor {
-            background: white;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border-top: 6px solid #D4AF37; /* Dorado IGJ */
-        }
-        h1 { color: #004581; margin-bottom: 5px; }
-        .fecha { color: #888; font-size: 1.1em; margin-bottom: 30px; }
-        
-        .tarjeta-resumen {
-            display: flex;
-            justify-content: space-between;
-            background-color: #e6f0fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border-left: 5px solid #004581;
-        }
-        .tarjeta-resumen h3 { margin: 0; color: #333; }
-        .tarjeta-resumen span { font-weight: bold; font-size: 1.2em; color: #004581; }
-        
-        .total-final {
-            background-color: #004581;
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            font-size: 1.5em;
-            margin-top: 25px;
-            font-weight: bold;
-        }
-        .volver-btn {
-            display: inline-block;
-            margin-top: 30px;
-            color: white;
-            background-color: #C41230; /* Rojo IGJ */
-            text-decoration: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-weight: bold;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Ventas - Cafetería IGJ</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body class="centered-layout">
 
-    <div class="contenedor">
-        <img src="https://imgs.search.brave.com/1tFRxOQSQTKZiRlQLvilQSyiVtJ3yPprGSEWonnEvO8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9hcHJl/bmRlLmdvYi5teC93/cC1jb250ZW50L3Vw/bG9hZHMvMjAyNC8w/MS9nYXVzLTEucG5n" alt="Logo UGJ" style="max-width: 150px; margin-bottom: 20px;">
+    <div class="container">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='gaus-1.png') }}" alt="Logo UGJ" class="logo-img" style="max-width: 130px;">
+        </div>
         <h1>Corte de Caja Diario</h1>
-        <p class="fecha">Fecha de operaciones: <strong>{{ fecha }}</strong></p>
+        <p class="corte-fecha" style="text-align: center;">Fecha de operaciones: <strong>{{ fecha }}</strong></p>
 
-        <div class="tarjeta-resumen">
+        <div class="ventas-resumen-card">
             <h3>💵 Pagos en Efectivo</h3>
             <span id="monto-efectivo">${{ "%.2f"|format(total_efectivo) }}</span>
         </div>
 
-        <div class="tarjeta-resumen" style="border-left-color: #D4AF37;">
+        <div class="ventas-resumen-card" style="border-left-color: var(--dorado);">
             <h3>💳 Pagos con Tarjeta</h3>
             <span id="monto-tarjeta">${{ "%.2f"|format(total_tarjeta) }}</span>
         </div>
 
-        <div class="total-final" id="monto-total">
+        <div class="total-final-gradiente" id="monto-total">
             Total Recaudado: ${{ "%.2f"|format(total_dia) }}
         </div>
 
-        <a href="/admin" class="volver-btn">← Volver al Panel</a>
-        <a href="/logout" class="volver-btn" style="background-color: #C41230; color: white;">Cerrar Sesión</a>
+        <div class="corte-botones-container">
+            <a href="/admin" class="btn btn-outline">← Volver al Panel</a>
+            <a href="/logout" class="btn btn-accent">Cerrar Sesión</a>
+        </div>
     </div>
 
     <script>
