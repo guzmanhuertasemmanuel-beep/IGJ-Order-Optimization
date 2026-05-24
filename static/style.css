@@ -1,8 +1,3 @@
-/* ==========================================================================
-   SISTEMA DE ESTILOS UNIFICADO - CAFETERÍA IGJ (MIGRACIÓN & REDISEÑO PREMIUM)
-   Universidad Gauss Jordan (UGJ)
-   ========================================================================== */
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 
 :root {
@@ -11,15 +6,15 @@
     --azul-oscuro: #002d5c;
     --azul-claro: #f0f7fd;
     --azul-hover: rgba(0, 69, 129, 0.08);
-    
+
     --rojo-acento: #C41230;
     --rojo-oscuro: #8B0E22;
     --rojo-claro: #ffebee;
-    
+
     --dorado: #D4AF37;
     --dorado-oscuro: #b5952f;
     --dorado-brillo: rgba(212, 175, 55, 0.25);
-    
+
     /* --- NEUTROS MODERNOS --- */
     --gris-fondo: #f8fafc;
     --gris-tarjeta: #ffffff;
@@ -27,25 +22,25 @@
     --texto-principal: #1e293b;
     --texto-secundario: #64748b;
     --texto-mutado: #94a3b8;
-    
+
     /* --- ESTADOS --- */
     --color-exito: #10b981;
     --color-exito-fondo: #ecfdf5;
     --color-exito-borde: #a7f3d0;
     --color-alerta: #f59e0b;
     --color-alerta-fondo: #fef3c7;
-    
+
     /* --- TIPOGRAFÍA --- */
     --fuente-titulos: 'Outfit', 'Segoe UI', sans-serif;
     --fuente-cuerpo: 'Inter', 'Segoe UI', sans-serif;
-    
+
     /* --- SOMBRAS Y EFECTOS --- */
     --sombra-suave: 0 4px 6px -1px rgba(0, 69, 129, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
     --sombra-media: 0 10px 15px -3px rgba(0, 69, 129, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
     --sombra-premium: 0 20px 25px -5px rgba(0, 69, 129, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     --sombra-resplandor: 0 0 15px rgba(0, 69, 129, 0.15);
     --sombra-resplandor-dorada: 0 0 20px rgba(212, 175, 55, 0.3);
-    
+
     /* --- TRANSICIONES --- */
     --transicion-rapida: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transicion-suave: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -95,7 +90,8 @@ body.centered-layout {
     border: 1px solid rgba(0, 69, 129, 0.05);
     position: relative;
     overflow: hidden;
-    margin: 0 auto; /* Centrado horizontal */
+    margin: 0 auto;
+    /* Centrado horizontal */
 }
 
 .container::before {
@@ -469,7 +465,7 @@ tr:hover {
 .payment-options {
     display: flex;
     gap: 16px;
-    width: 100%; 
+    width: 100%;
     margin-bottom: 30px;
     justify-content: center;
 }
@@ -504,7 +500,7 @@ tr:hover {
 }
 
 /* Efecto al seleccionar el método de pago */
-.pay-item input[type="radio"]:checked + .pay-label {
+.pay-item input[type="radio"]:checked+.pay-label {
     border-color: var(--azul-principal);
     background-color: var(--azul-claro);
     color: var(--azul-principal);
@@ -573,8 +569,15 @@ tr:hover {
 }
 
 @keyframes pop-in {
-    0% { opacity: 0; transform: scale(0.8) translateY(20px); }
-    100% { opacity: 1; transform: scale(1) translateY(0); }
+    0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 /* ==========================================================================
@@ -635,8 +638,8 @@ tr:hover {
    ESTILOS ESPECÍFICOS: TABLERO DE PEDIDOS (Pantalla Pública)
    ========================================================================== */
 
-.header-dashboard { 
-    background-color: white; 
+.header-dashboard {
+    background-color: white;
     padding: 20px 30px;
     border-bottom: 5px solid var(--dorado);
     box-shadow: var(--sombra-suave);
@@ -653,30 +656,30 @@ tr:hover {
     letter-spacing: -0.5px;
 }
 
-.tablero-grid { 
-    display: flex; 
-    justify-content: space-between; 
-    padding: 0 10px; 
+.tablero-grid {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
     max-width: 1300px;
     margin: 0 auto 30px auto;
     gap: 25px;
 }
 
-.columna-tablero { 
-    width: 49%; 
-    background: white; 
-    border-radius: 20px; 
-    box-shadow: var(--sombra-premium); 
-    min-height: 70vh; 
-    overflow: hidden; 
+.columna-tablero {
+    width: 49%;
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--sombra-premium);
+    min-height: 70vh;
+    overflow: hidden;
     border: 1px solid var(--gris-borde);
 }
 
-.titulo-prep { 
-    background-color: var(--azul-principal); 
-    color: white; 
-    padding: 22px; 
-    margin: 0; 
+.titulo-prep {
+    background-color: var(--azul-principal);
+    color: white;
+    padding: 22px;
+    margin: 0;
     font-family: var(--fuente-titulos);
     font-size: 2rem;
     font-weight: 800;
@@ -686,11 +689,11 @@ tr:hover {
     text-align: center;
 }
 
-.titulo-listo { 
-    background-color: var(--rojo-acento); 
-    color: white; 
-    padding: 22px; 
-    margin: 0; 
+.titulo-listo {
+    background-color: var(--rojo-acento);
+    color: white;
+    padding: 22px;
+    margin: 0;
     font-family: var(--fuente-titulos);
     font-size: 2rem;
     font-weight: 800;
@@ -700,18 +703,18 @@ tr:hover {
     text-align: center;
 }
 
-.lista-ids { 
-    list-style: none; 
-    padding: 10px 0; 
-    font-size: 4.2rem; 
-    font-weight: 800; 
+.lista-ids {
+    list-style: none;
+    padding: 10px 0;
+    font-size: 4.2rem;
+    font-weight: 800;
     font-family: var(--fuente-titulos);
     margin: 0;
 }
 
-.lista-ids li { 
-    padding: 20px 0; 
-    border-bottom: 2px dashed var(--gris-borde); 
+.lista-ids li {
+    padding: 20px 0;
+    border-bottom: 2px dashed var(--gris-borde);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -722,20 +725,31 @@ tr:hover {
     border-bottom: none;
 }
 
-.preparacion-item { 
-    color: var(--azul-principal); 
+.preparacion-item {
+    color: var(--azul-principal);
 }
 
-.listo-item { 
-    color: var(--rojo-acento); 
-    animation: parpadeo-latido 1.6s ease-in-out infinite; 
+.listo-item {
+    color: var(--rojo-acento);
+    animation: parpadeo-latido 1.6s ease-in-out infinite;
     will-change: transform, opacity;
 }
 
 @keyframes parpadeo-latido {
-    0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.7; transform: scale(1.06); }
-    100% { opacity: 1; transform: scale(1); }
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.7;
+        transform: scale(1.06);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 /* ==========================================================================
@@ -770,11 +784,11 @@ tr:hover {
     text-align: center;
 }
 
-.formulario-admin-box { 
-    background: white; 
-    padding: 30px; 
-    display: inline-block; 
-    border-radius: 16px; 
+.formulario-admin-box {
+    background: white;
+    padding: 30px;
+    display: inline-block;
+    border-radius: 16px;
     margin-bottom: 40px;
     box-shadow: var(--sombra-media);
     border-top: 6px solid var(--dorado);
@@ -808,36 +822,36 @@ tr:hover {
 }
 
 /* Botones de Acción de Fila de Tabla */
-.btn-tabla { 
-    padding: 8px 14px; 
-    font-size: 0.85rem; 
+.btn-tabla {
+    padding: 8px 14px;
+    font-size: 0.85rem;
     font-weight: 700;
-    border-radius: 6px; 
-    margin: 2px; 
+    border-radius: 6px;
+    margin: 2px;
 }
 
-.btn-tabla-estado { 
-    background-color: var(--dorado); 
-    color: var(--azul-oscuro); 
+.btn-tabla-estado {
+    background-color: var(--dorado);
+    color: var(--azul-oscuro);
 }
 
-.btn-tabla-estado:hover { 
-    background-color: var(--dorado-oscuro); 
-    color: white; 
+.btn-tabla-estado:hover {
+    background-color: var(--dorado-oscuro);
+    color: white;
 }
 
-.btn-tabla-eliminar { 
-    background-color: var(--rojo-acento); 
-    color: white; 
+.btn-tabla-eliminar {
+    background-color: var(--rojo-acento);
+    color: white;
 }
 
-.btn-tabla-eliminar:hover { 
-    background-color: var(--rojo-oscuro); 
+.btn-tabla-eliminar:hover {
+    background-color: var(--rojo-oscuro);
 }
 
-.acciones-form { 
-    display: inline-block; 
-    margin: 0; 
+.acciones-form {
+    display: inline-block;
+    margin: 0;
     width: auto;
 }
 
@@ -863,18 +877,18 @@ tr:hover {
     box-shadow: var(--sombra-media);
 }
 
-.ventas-resumen-card h3 { 
-    margin: 0; 
-    color: var(--texto-principal); 
+.ventas-resumen-card h3 {
+    margin: 0;
+    color: var(--texto-principal);
     font-size: 1.05rem;
     font-weight: 600;
 }
 
-.ventas-resumen-card span { 
+.ventas-resumen-card span {
     font-family: var(--fuente-titulos);
-    font-weight: 800; 
-    font-size: 1.3rem; 
-    color: var(--azul-principal); 
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: var(--azul-principal);
 }
 
 .total-final-gradiente {
@@ -931,57 +945,59 @@ tr:hover {
     body {
         padding: 20px 10px;
     }
-    
-    .container, .tarjeta-confirmacion, .login-caja {
+
+    .container,
+    .tarjeta-confirmacion,
+    .login-caja {
         padding: 25px 20px;
     }
-    
+
     h1 {
         font-size: 1.75rem;
         margin-bottom: 20px;
     }
-    
+
     /* Menu grids colapsables */
     .menu-grid {
         grid-template-columns: 1fr;
         gap: 12px;
     }
-    
+
     /* Opciones de pago en columna */
     .payment-options {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     /* Tablero de Pedidos responsivo */
     .tablero-grid {
         flex-direction: column;
         gap: 20px;
     }
-    
+
     .columna-tablero {
         width: 100%;
         min-height: 45vh;
     }
-    
+
     .lista-ids {
         font-size: 3rem;
     }
-    
+
     .lista-ids li {
         height: 90px;
     }
-    
+
     /* Formulario de Administración responsivo */
     .formulario-admin-box form {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .formulario-admin-box .form-input-container {
         width: 100%;
     }
-    
+
     /* Botones de Corte de caja responsivos */
     .corte-botones-container {
         flex-direction: column;
