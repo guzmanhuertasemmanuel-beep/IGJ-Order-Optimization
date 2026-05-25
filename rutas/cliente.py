@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify
-from db_manager import conectar_db
+from postgres_manager import conectar_postgres
 import datetime
 
 # ¡Solo creamos el Blueprint UNA VEZ!
@@ -11,9 +11,9 @@ cliente_bp = Blueprint('cliente', __name__)
 
 @cliente_bp.route("/")
 def inicio():
-    conexion = conectar_db()
+    conexion = conectar_postgres()
     cursor = conexion.cursor()
-    cursor.execute("SELECT nombre, precio FROM Productos WHERE disponible = 1")
+    cursor.execute("SELECT nombre, precio FROM Productos WHERE disponible = True")
     productos = cursor.fetchall()
     conexion.close()
     return render_template("index.html", productos=productos)
@@ -23,7 +23,7 @@ def nuevo_pedido():
     cliente = request.form["cliente"]
     metodo_pago = request.form["metodo_pago"]
 
-    conexion = conectar_db()
+    conexion = conectar_postgres()
     cursor = conexion.cursor()
 
     productos_pedidos = []
@@ -34,12 +34,12 @@ def nuevo_pedido():
             nombre_producto = llave.replace("cantidad_", "")
             cantidad = int(valor)
             
-            cursor.execute("SELECT precio FROM Productos WHERE nombre = ?", (nombre_producto,))
+            cursor.execute("SELECT precio FROM Productos WHERE nombre = %s", (nombre_producto,))
             resultado = cursor.fetchone()
             
             if resultado:
                 precio_unitario = resultado[0]
-                total_pagar += (cantidad * precio_unitario)
+                total_pagar += float(cantidad * precio_unitario)
                 productos_pedidos.append(f"{cantidad}x {nombre_producto}")
 
     if len(productos_pedidos) == 0:
@@ -59,7 +59,7 @@ def nuevo_pedido():
 
     cursor.execute("""
     INSERT INTO Pedidos (nombre_cliente, producto, fecha_pedido, hora_pedido, estado, metodo_pago, total)
-    VALUES (?, ?, ?, ?, 'Pendiente', ?, ?)
+    VALUES (%s, %s, %s, %s, 'Pendiente', %s, %s)
     """, (cliente, producto_final, fecha, hora, metodo_pago, total_pagar))
 
     conexion.commit()
@@ -74,10 +74,10 @@ def nuevo_pedido():
 @cliente_bp.route("/api/menu", methods=["GET"])
 def api_get_menu():
     try:
-        conexion = conectar_db()
+        conexion = conectar_postgres()
         cursor = conexion.cursor()
         # Solo traemos productos disponibles
-        cursor.execute("SELECT id_producto, nombre, precio, categoria FROM Productos WHERE disponible = 1")
+        cursor.execute("SELECT id_producto, nombre, precio, categoria FROM Productos WHERE disponible = True")
         columnas = [column[0] for column in cursor.description]
         productos = [dict(zip(columnas, row)) for row in cursor.fetchall()]
         conexion.close()
@@ -87,23 +87,28 @@ def api_get_menu():
 
 @cliente_bp.route("/api/nuevo_pedido", methods=["POST"])
 def api_nuevo_pedido():
+    conexion = None
     try:
         datos = request.get_json() 
         
         nombre_cliente = datos.get('nombre_cliente')
         producto = datos.get('producto')
         metodo_pago = datos.get('metodo_pago')
-        total = datos.get('total')
+        # FIX: Forzar conversion a float. Si Java envia "15.50" como string, esto lo convierte.
+        # Si ya es un numero, float() lo acepta sin problema.
+        total = float(datos.get('total', 0))
         
-        fecha_actual = datetime.date.today().strftime("%Y-%m-%d")
-        hora_actual = datetime.datetime.now().strftime("%H:%M:%S")
+        # FIX: Usar objetos nativos de Python en lugar de strings para que psycopg2
+        # los mapee correctamente a los tipos DATE y TIME de PostgreSQL.
+        fecha_actual = datetime.date.today()
+        hora_actual = datetime.datetime.now().time()
         
-        conexion = conectar_db()
+        conexion = conectar_postgres()
         cursor = conexion.cursor()
         
         cursor.execute("""
             INSERT INTO Pedidos (nombre_cliente, producto, fecha_pedido, hora_pedido, estado, metodo_pago, total)
-            VALUES (?, ?, ?, ?, 'Pendiente', ?, ?)
+            VALUES (%s, %s, %s, %s, 'Pendiente', %s, %s)
         """, (nombre_cliente, producto, fecha_actual, hora_actual, metodo_pago, total))
         
         conexion.commit()
@@ -111,4 +116,11 @@ def api_nuevo_pedido():
         
         return jsonify({"mensaje": "Pedido recibido en la cocina del IGJ"}), 201
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        # FIX: Imprimir el error REAL en la consola del servidor para diagnosticar.
+        print(f"[ERROR /api/nuevo_pedido] {type(e).__name__}: {e}")
+        # FIX: Hacer rollback si la conexion fue abierta, para no dejar la transaccion corrupta.
+        if conexion:
+            conexion.rollback()
+            conexion.close()
+        # FIX: Retornar el error real al cliente (AppJava) en lugar de un exito falso.
+        return jsonify({"error": f"{type(e).__name__}: {str(e)}"}), 500

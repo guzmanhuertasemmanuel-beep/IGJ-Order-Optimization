@@ -2,7 +2,7 @@ from flask import Flask
 import threading  # Permite ejecutar tareas en segundo plano sin congelar Flask
 import time       # Nos sirve para pausar el ciclo y que no sature el procesador
 import datetime   # Para comparar las horas y fechas de los pedidos
-from db_manager import conectar_db  # Necesitamos conectar con SQLite desde aquí
+from postgres_manager import conectar_postgres  # Necesitamos conectar con PostgreSQL desde aquí
 
 def limpieza_automatica_pedidos():
     while True:
@@ -12,7 +12,7 @@ def limpieza_automatica_pedidos():
         
         try:
             # 2. Abrimos una conexión exclusiva para este hilo secundario
-            conexion = conectar_db()
+            conexion = conectar_postgres()
             cursor = conexion.cursor()
             ahora = datetime.datetime.now()
             
@@ -33,7 +33,7 @@ def limpieza_automatica_pedidos():
                     # Si la diferencia es de 300 segundos (5 minutos) o más, se cambia el estado.
                     if (ahora - tiempo_listo).total_seconds() >= 300: 
                         cursor.execute(
-                            "UPDATE Pedidos SET estado='Entregado' WHERE id_pedido=?", 
+                            "UPDATE Pedidos SET estado='Entregado' WHERE id_pedido=%s", 
                             (id_pedido,)
                         )
             
@@ -53,7 +53,7 @@ hilo_limpieza = threading.Thread(target=limpieza_automatica_pedidos, daemon=True
 # Arranca el proceso en paralelo de inmediato
 hilo_limpieza.start()
 
-from db_manager import crear_tablas
+from postgres_manager import crear_tablas_postgres
 
 # Importamos los módulos (Blueprints)
 from rutas.cliente import cliente_bp
@@ -70,7 +70,7 @@ app.register_blueprint(cocina_bp)
 app.register_blueprint(admin_bp)
 
 # Aseguramos que las tablas existan al iniciar
-crear_tablas()
+crear_tablas_postgres()
 
 if __name__ == "__main__":
     app.run(debug=True)

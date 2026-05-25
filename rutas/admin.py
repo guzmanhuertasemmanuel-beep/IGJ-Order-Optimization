@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, session, jsonify
-from db_manager import conectar_db
+from postgres_manager import conectar_postgres
 import datetime
 
 admin_bp = Blueprint('admin', __name__)
@@ -25,7 +25,7 @@ def admin():
     if not session.get("logueado"):
         return redirect("/login")
 
-    conexion = conectar_db()
+    conexion = conectar_postgres()
     cursor = conexion.cursor()
     cursor.execute("SELECT id_producto, nombre, precio, categoria, disponible FROM Productos")
     productos = cursor.fetchall()
@@ -41,11 +41,11 @@ def agregar_producto():
     precio = request.form["precio"]
     categoria = request.form["categoria"]
     
-    conexion = conectar_db()
+    conexion = conectar_postgres()
     cursor = conexion.cursor()
     cursor.execute("""
         INSERT INTO Productos (nombre, precio, categoria, disponible) 
-        VALUES (?, ?, ?, 1)
+        VALUES (%s, %s, %s, True)
     """, (nombre, precio, categoria))
     conexion.commit()
     conexion.close()
@@ -56,14 +56,14 @@ def estado_producto(id):
     if not session.get("logueado"):
         return redirect("/login")
     
-    conexion = conectar_db()
+    conexion = conectar_postgres()
     cursor = conexion.cursor()
-    cursor.execute("SELECT disponible FROM Productos WHERE id_producto = ?", (id,))
+    cursor.execute("SELECT disponible FROM Productos WHERE id_producto = %s", (id,))
     estado_actual = cursor.fetchone()[0]
     
-    nuevo_estado = 0 if estado_actual == 1 else 1
+    nuevo_estado = 0 if estado_actual is True else 1
     
-    cursor.execute("UPDATE Productos SET disponible = ? WHERE id_producto = ?", (nuevo_estado, id))
+    cursor.execute("UPDATE Productos SET disponible = %s WHERE id_producto = %s", (nuevo_estado, id))
     conexion.commit()
     conexion.close()
     return redirect("/admin")
@@ -73,9 +73,9 @@ def eliminar_producto(id):
     if not session.get("logueado"):
         return redirect("/login")
         
-    conexion = conectar_db()
+    conexion = conectar_postgres()
     cursor = conexion.cursor()
-    cursor.execute("DELETE FROM Productos WHERE id_producto = ?", (id,))
+    cursor.execute("DELETE FROM Productos WHERE id_producto = %s", (id,))
     conexion.commit()
     conexion.close()
     return redirect("/admin")
@@ -85,14 +85,14 @@ def ventas():
     if not session.get("logueado"):
         return redirect("/login")
 
-    conexion = conectar_db()
+    conexion = conectar_postgres()
     cursor = conexion.cursor()
     fecha_hoy = datetime.date.today()
 
     cursor.execute("""
         SELECT metodo_pago, SUM(total) 
         FROM Pedidos 
-        WHERE fecha_pedido = ? 
+        WHERE fecha_pedido = %s 
         GROUP BY metodo_pago
     """, (fecha_hoy,))
     
@@ -108,7 +108,7 @@ def ventas():
         elif fila[0] == 'tarjeta':
             total_tarjeta = fila[1] if fila[1] else 0.0
 
-    total_dia = total_efectivo + total_tarjeta
+    total_dia = float(total_efectivo or 0) + float(total_tarjeta or 0)
 
     return render_template("ventas.html", 
                            fecha=fecha_hoy, 
@@ -121,7 +121,7 @@ def api_ventas():
     if not session.get("logueado"):
         return jsonify({"error": "No autorizado"}), 403
 
-    conexion = conectar_db()
+    conexion = conectar_postgres()
     cursor = conexion.cursor()
     fecha_hoy = datetime.date.today()
 
@@ -129,7 +129,7 @@ def api_ventas():
     cursor.execute("""
         SELECT metodo_pago, SUM(total) 
         FROM Pedidos 
-        WHERE fecha_pedido = ? 
+        WHERE fecha_pedido = %s 
         GROUP BY metodo_pago
     """, (fecha_hoy,))
     
