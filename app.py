@@ -39,6 +39,7 @@ from postgres_manager import crear_tablas_postgres
 from rutas.cliente import cliente_bp
 from rutas.cocina import cocina_bp
 from rutas.admin import admin_bp
+from rutas.ventas import ventas_bp
 
 app = Flask(__name__)
 app.secret_key = "super_secreta_igj_2026"
@@ -46,6 +47,7 @@ app.secret_key = "super_secreta_igj_2026"
 app.register_blueprint(cliente_bp)
 app.register_blueprint(cocina_bp)
 app.register_blueprint(admin_bp)
+app.register_blueprint(ventas_bp)
 
 crear_tablas_postgres()
 

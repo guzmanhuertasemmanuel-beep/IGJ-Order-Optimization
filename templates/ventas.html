@@ -3,60 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte de Ventas - Cafetería IGJ</title>
+    <meta name="description" content="Panel de gestión de ventas e historial de pedidos — Cafetería IGJ">
+    <title>Gestión de Ventas — Cafetería IGJ</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="centered-layout">
+<body class="ventas-body">
 
-    <div class="container">
-        <div class="logo-container">
-            <img src="{{ url_for('static', filename='gaus-1.png') }}" alt="Logo UGJ" class="logo-img" style="max-width: 130px;">
+    <header class="ventas-header">
+        <div class="ventas-header-inner">
+            <div class="ventas-header-brand">
+                <img src="{{ url_for('static', filename='gaus-1.png') }}" alt="Logo IGJ" class="logo-img" style="max-width:48px;">
+                <div>
+                    <h1 class="ventas-titulo">Gestión de Ventas</h1>
+                    <p class="ventas-subtitulo" id="fecha-header">Cargando fecha…</p>
+                </div>
+            </div>
+            <div class="ventas-header-nav">
+                <a href="/admin" class="btn btn-outline btn-sm">← Panel Admin</a>
+                <a href="/logout" class="btn btn-accent btn-sm">Cerrar Sesión</a>
+            </div>
         </div>
-        <h1>Corte de Caja Diario</h1>
-        <p class="corte-fecha" style="text-align: center;">Fecha de operaciones: <strong>{{ fecha }}</strong></p>
+    </header>
 
-        <div class="ventas-resumen-card">
-            <h3>💵 Pagos en Efectivo</h3>
-            <span id="monto-efectivo">${{ "%.2f"|format(total_efectivo) }}</span>
-        </div>
+    <main class="ventas-dashboard">
 
-        <div class="ventas-resumen-card" style="border-left-color: var(--dorado);">
-            <h3>💳 Pagos con Tarjeta</h3>
-            <span id="monto-tarjeta">${{ "%.2f"|format(total_tarjeta) }}</span>
-        </div>
+        <!-- ═══════════════════════════════════════════════════════
+             NIVEL 1 — KPI Cards
+        ═══════════════════════════════════════════════════════ -->
+        <section class="kpi-grid" aria-label="Indicadores clave de ventas">
+            <div class="kpi-card kpi-acumulado" id="kpi-acumulado">
+                <div class="kpi-icon">💰</div>
+                <div class="kpi-body">
+                    <span class="kpi-label">Dinero Acumulado Histórico</span>
+                    <span class="kpi-valor" id="val-acumulado">—</span>
+                </div>
+                <div class="kpi-shimmer"></div>
+            </div>
 
-        <div class="total-final-gradiente" id="monto-total">
-            Total Recaudado: ${{ "%.2f"|format(total_dia) }}
-        </div>
+            <div class="kpi-card kpi-top" id="kpi-top">
+                <div class="kpi-icon">🏆</div>
+                <div class="kpi-body">
+                    <span class="kpi-label">Top Producto (Volumen)</span>
+                    <span class="kpi-valor" id="val-top-nombre">—</span>
+                    <span class="kpi-sub" id="val-top-unidades">— pedidos</span>
+                </div>
+                <div class="kpi-shimmer"></div>
+            </div>
 
-        <div class="corte-botones-container">
-            <a href="/admin" class="btn btn-outline">← Volver al Panel</a>
-            <a href="/logout" class="btn btn-accent">Cerrar Sesión</a>
-        </div>
-    </div>
+            <div class="kpi-card kpi-dia" id="kpi-dia">
+                <div class="kpi-icon">📅</div>
+                <div class="kpi-body">
+                    <span class="kpi-label">Total Ventas del Día</span>
+                    <span class="kpi-valor" id="val-dia">—</span>
+                </div>
+                <div class="kpi-shimmer"></div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════
+             NIVEL 2 — Métodos de Pago + Ventas del Día
+        ═══════════════════════════════════════════════════════ -->
+        <section class="ventas-mid-grid" aria-label="Desglose por método de pago">
+
+            <div class="panel-metodos">
+                <h2 class="panel-titulo">Histórico · Métodos de Pago</h2>
+                <p class="panel-nota">Solo pedidos <strong>Entregados</strong></p>
+
+                <div class="pago-row" id="pago-ef-hist">
+                    <div class="pago-header">
+                        <span class="pago-label">💵 Efectivo</span>
+                        <span class="pago-monto" id="hist-efectivo">—</span>
+                    </div>
+                    <div class="barra-track">
+                        <div class="barra-fill barra-efectivo" id="barra-ef-hist" style="width:0%"></div>
+                    </div>
+                </div>
+
+                <div class="pago-row" id="pago-tar-hist">
+                    <div class="pago-header">
+                        <span class="pago-label">💳 Tarjeta</span>
+                        <span class="pago-monto" id="hist-tarjeta">—</span>
+                    </div>
+                    <div class="barra-track">
+                        <div class="barra-fill barra-tarjeta" id="barra-tar-hist" style="width:0%"></div>
+                    </div>
+                </div>
+
+                <div class="pago-total-row">
+                    <span>Total acumulado</span>
+                    <span id="hist-total" class="pago-total-valor">—</span>
+                </div>
+            </div>
+
+            <div class="panel-dia">
+                <h2 class="panel-titulo">Ventas de Hoy · <span id="fecha-dia-panel">—</span></h2>
+                <p class="panel-nota">Solo pedidos <strong>Entregados</strong></p>
+
+                <div class="dia-sub-grid">
+                    <div class="dia-sub dia-sub-efectivo">
+                        <span class="dia-sub-icono">💵</span>
+                        <span class="dia-sub-label">Efectivo del Día</span>
+                        <span class="dia-sub-valor" id="dia-efectivo">—</span>
+                    </div>
+                    <div class="dia-sub dia-sub-tarjeta">
+                        <span class="dia-sub-icono">💳</span>
+                        <span class="dia-sub-label">Tarjeta del Día</span>
+                        <span class="dia-sub-valor" id="dia-tarjeta">—</span>
+                    </div>
+                </div>
+
+                <div class="dia-total-box">
+                    <span class="dia-total-label">Total recaudado hoy</span>
+                    <span class="dia-total-valor" id="dia-total">—</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════
+             NIVEL 3 — Historial de Pedidos
+        ═══════════════════════════════════════════════════════ -->
+        <section class="panel-pedidos" aria-label="Historial de pedidos">
+            <div class="pedidos-header">
+                <h2 class="panel-titulo">Historial de Pedidos</h2>
+                <span class="pedidos-contador" id="contador-pedidos">0 registros</span>
+            </div>
+
+            <div class="filtros-bar" role="search">
+                <div class="filtro-campo">
+                    <label for="filtro-id">🔍 ID</label>
+                    <input type="number" id="filtro-id" placeholder="Buscar #ID…" min="1">
+                </div>
+                <div class="filtro-campo">
+                    <label for="filtro-metodo">💳 Método</label>
+                    <select id="filtro-metodo">
+                        <option value="">Todos</option>
+                        <option value="efectivo">Efectivo</option>
+                        <option value="tarjeta">Tarjeta</option>
+                    </select>
+                </div>
+                <div class="filtro-campo">
+                    <label for="filtro-estado">📋 Estado</label>
+                    <select id="filtro-estado">
+                        <option value="">Todos</option>
+                        <option value="Entregado">Entregado</option>
+                        <option value="Listo">Listo</option>
+                        <option value="Pendiente">Pendiente</option>
+                    </select>
+                </div>
+                <div class="filtro-campo">
+                    <label for="filtro-fecha">📅 Fecha</label>
+                    <input type="date" id="filtro-fecha">
+                </div>
+                <button class="btn btn-outline btn-sm" id="btn-limpiar" type="button">✕ Limpiar</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table id="tabla-pedidos">
+                    <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th>Fecha / Hora</th>
+                            <th>Total</th>
+                            <th>Método de Pago</th>
+                            <th>Estado</th>
+                            <th>Detalle de Productos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-pedidos-body">
+                        <tr>
+                            <td colspan="6" class="tabla-cargando">⏳ Cargando pedidos…</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
 
     <script>
-        async function actualizarVentas() {
-            try {
-                const respuesta = await fetch('/api/ventas');
-                
-                // Si la sesión expiró o hay un error, nos detenemos
-                if (!respuesta.ok) return; 
+        const fmt = (n) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(n);
 
-                const datos = await respuesta.json();
+        const ESTADO_CONFIG = {
+            'Entregado': { clase: 'badge-success', icono: '✔' },
+            'Listo':     { clase: 'badge-info',    icono: '🔔' },
+            'Pendiente': { clase: 'badge-alerta',  icono: '⏳' },
+        };
 
-                // Actualizamos los textos usando los IDs, y .toFixed(2) para los decimales
-                document.getElementById('monto-efectivo').innerText = `$${datos.efectivo.toFixed(2)}`;
-                document.getElementById('monto-tarjeta').innerText = `$${datos.tarjeta.toFixed(2)}`;
-                document.getElementById('monto-total').innerText = `Total Recaudado: $${datos.total_dia.toFixed(2)}`;
-
-            } catch (error) {
-                console.error("Error al sincronizar ventas:", error);
-            }
+        function badgeEstado(estado) {
+            const cfg = ESTADO_CONFIG[estado] || { clase: 'badge-info', icono: '?' };
+            return `<span class="badge ${cfg.clase}">${cfg.icono} ${estado}</span>`;
         }
 
-        // Actualizar cada 5 segundos (5000 ms)
-        setInterval(actualizarVentas, 5000);
+        function badgeMetodo(metodo) {
+            if (!metodo) return '—';
+            return metodo === 'efectivo'
+                ? `<span class="badge badge-efectivo">💵 Efectivo</span>`
+                : `<span class="badge badge-tarjeta">💳 Tarjeta</span>`;
+        }
+
+        async function cargarResumen() {
+            try {
+                const r = await fetch('/api/ventas/resumen');
+                if (!r.ok) return;
+                const d = await r.json();
+                document.getElementById('val-acumulado').textContent = fmt(d.acumulado_historico);
+                document.getElementById('val-top-nombre').textContent = d.top_producto.nombre;
+                document.getElementById('val-top-unidades').textContent = `${d.top_producto.unidades} pedidos`;
+                document.getElementById('val-dia').textContent = fmt(d.total_dia);
+                document.getElementById('fecha-header').textContent = `Operaciones al ${d.fecha_hoy}`;
+            } catch (e) { console.error('resumen:', e); }
+        }
+
+        async function cargarMetodosPago() {
+            try {
+                const r = await fetch('/api/ventas/metodos_pago');
+                if (!r.ok) return;
+                const d = await r.json();
+
+                document.getElementById('hist-efectivo').textContent = fmt(d.historico.efectivo);
+                document.getElementById('hist-tarjeta').textContent = fmt(d.historico.tarjeta);
+                document.getElementById('hist-total').textContent = fmt(d.historico.total);
+
+                const total = d.historico.total || 1;
+                const pctEf = (d.historico.efectivo / total * 100).toFixed(1);
+                const pctTar = (d.historico.tarjeta / total * 100).toFixed(1);
+                setTimeout(() => {
+                    document.getElementById('barra-ef-hist').style.width = pctEf + '%';
+                    document.getElementById('barra-tar-hist').style.width = pctTar + '%';
+                }, 100);
+
+                document.getElementById('dia-efectivo').textContent = fmt(d.dia.efectivo);
+                document.getElementById('dia-tarjeta').textContent = fmt(d.dia.tarjeta);
+                document.getElementById('dia-total').textContent = fmt(d.dia.total);
+                document.getElementById('fecha-dia-panel').textContent = d.dia.fecha;
+            } catch (e) { console.error('metodos_pago:', e); }
+        }
+
+        async function cargarPedidos() {
+            const params = new URLSearchParams();
+            const id = document.getElementById('filtro-id').value.trim();
+            const metodo = document.getElementById('filtro-metodo').value;
+            const estado = document.getElementById('filtro-estado').value;
+            const fecha = document.getElementById('filtro-fecha').value;
+            if (id) params.set('id', id);
+            if (metodo) params.set('metodo_pago', metodo);
+            if (estado) params.set('estado', estado);
+            if (fecha) params.set('fecha', fecha);
+
+            try {
+                const r = await fetch('/api/ventas/pedidos?' + params);
+                if (!r.ok) return;
+                const d = await r.json();
+                const tbody = document.getElementById('tabla-pedidos-body');
+                document.getElementById('contador-pedidos').textContent = `${d.total_registros} registros`;
+
+                if (d.pedidos.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="tabla-vacia">Sin resultados para los filtros aplicados.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = d.pedidos.map(p => `
+                    <tr>
+                        <td><strong>#${p.id_pedido}</strong></td>
+                        <td>${p.fecha_hora}</td>
+                        <td style="font-weight:700;color:var(--azul-principal)">${fmt(p.total)}</td>
+                        <td>${badgeMetodo(p.metodo_pago)}</td>
+                        <td>${badgeEstado(p.estado)}</td>
+                        <td style="text-align:left;max-width:260px;white-space:normal">${p.detalle_productos || '—'}</td>
+                    </tr>
+                `).join('');
+            } catch (e) { console.error('pedidos:', e); }
+        }
+
+        function aplicarFiltros() { cargarPedidos(); }
+
+        document.getElementById('filtro-id').addEventListener('input', () => clearTimeout(window._debounce) || (window._debounce = setTimeout(aplicarFiltros, 400)));
+        document.getElementById('filtro-metodo').addEventListener('change', aplicarFiltros);
+        document.getElementById('filtro-estado').addEventListener('change', aplicarFiltros);
+        document.getElementById('filtro-fecha').addEventListener('change', aplicarFiltros);
+        document.getElementById('btn-limpiar').addEventListener('click', () => {
+            ['filtro-id','filtro-metodo','filtro-estado','filtro-fecha'].forEach(id => document.getElementById(id).value = '');
+            cargarPedidos();
+        });
+
+        function actualizarTodo() {
+            cargarResumen();
+            cargarMetodosPago();
+            cargarPedidos();
+        }
+
+        actualizarTodo();
+        setInterval(actualizarTodo, 20000);
     </script>
 </body>
 </html>
