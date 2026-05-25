@@ -2,7 +2,6 @@ import os
 import psycopg2
 from dotenv import load_dotenv
 
-# Cargar variables de entorno
 load_dotenv()
 
 def conectar_postgres():
@@ -18,7 +17,6 @@ def crear_tablas_postgres():
     conexion = conectar_postgres()
     cursor = conexion.cursor()
 
-    # Tabla Productos (PostgreSQL DDL)
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS Productos (
         id_producto SERIAL PRIMARY KEY,
@@ -29,8 +27,6 @@ def crear_tablas_postgres():
     )
     """)
 
-    # Tabla Pedidos (PostgreSQL DDL)
-    # Se mantiene el campo producto como TEXT según lo solicitado.
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS Pedidos (
         id_pedido SERIAL PRIMARY KEY,
