@@ -16,11 +16,16 @@
     <div class="tablero-grid">
         <div class="columna-tablero">
             <h2 class="titulo-prep">En preparación</h2>
+
+            {% set pendientes_total = pedidos | selectattr(3, 'equalto', 'Pendiente') | list %}
+            {% set en_cola = [pendientes_total | length - 5, 0] | max %}
+            <div class="cola-indicador{% if en_cola == 0 %} cola-indicador--oculto{% endif %}" id="cola-indicador">
+                ⚠️ <strong>5 pedidos en pantalla</strong> | <span id="cola-count">{{ en_cola }}</span> pedido{{ 's' if en_cola != 1 else '' }} más en cola
+            </div>
+
             <ul class="lista-ids" id="lista-preparacion">
-                {% for pedido in pedidos %}
-                    {% if pedido[3] == 'Pendiente' %}
-                        <li class="preparacion-item">#{{ pedido[0] }}</li>
-                    {% endif %}
+                {% for pedido in pendientes_total[:5] %}
+                    <li class="preparacion-item">#{{ pedido[0] }}</li>
                 {% endfor %}
             </ul>
         </div>
@@ -42,38 +47,56 @@
     </div>
 
     <script>
+        const LIMITE_COLA = 5;
+
         async function actualizarTablero() {
             try {
-                // Consultamos la ruta que acabas de crear en app.py
                 const respuesta = await fetch('/api/pedidos');
                 const pedidos = await respuesta.json();
 
-                const listaPrep = document.getElementById('lista-preparacion');
+                const listaPrep  = document.getElementById('lista-preparacion');
                 const listaListo = document.getElementById('lista-listo');
+                const indicador  = document.getElementById('cola-indicador');
+                const contadorEl = document.getElementById('cola-count');
 
-                // Limpiamos las listas actuales para no duplicar
-                listaPrep.innerHTML = "";
+                listaPrep.innerHTML  = "";
                 listaListo.innerHTML = "";
 
-                // Recorremos los datos nuevos y los dibujamos
-                pedidos.forEach(pedido => {
+                const enPreparacion = pedidos.filter(p => p.estado === 'Pendiente');
+                const listos        = pedidos.filter(p => p.estado === 'Listo');
+
+                // --- Cola Virtual: mostrar solo los primeros 5 ---
+                const visibles  = enPreparacion.slice(0, LIMITE_COLA);
+                const enCola    = Math.max(0, enPreparacion.length - LIMITE_COLA);
+
+                visibles.forEach(pedido => {
+                    const li = document.createElement('li');
+                    li.innerText  = `#${pedido.id}`;
+                    li.className  = 'preparacion-item';
+                    listaPrep.appendChild(li);
+                });
+
+                // --- Actualizar indicador de cola ---
+                if (enCola > 0) {
+                    contadorEl.textContent = enCola;
+                    indicador.classList.remove('cola-indicador--oculto');
+                } else {
+                    indicador.classList.add('cola-indicador--oculto');
+                }
+
+                // --- Pedidos listos (sin límite) ---
+                listos.forEach(pedido => {
                     const li = document.createElement('li');
                     li.innerText = `#${pedido.id}`;
-
-                    if (pedido.estado === 'Pendiente') {
-                        li.className = "preparacion-item";
-                        listaPrep.appendChild(li);
-                    } else if (pedido.estado === 'Listo') {
-                        li.className = "listo-item";
-                        listaListo.appendChild(li);
-                    }
+                    li.className = 'listo-item';
+                    listaListo.appendChild(li);
                 });
+
             } catch (error) {
                 console.error("Error al actualizar el tablero:", error);
             }
         }
 
-        // Ejecutar la función cada 3 segundos (3000 milisegundos)
         setInterval(actualizarTablero, 3000);
     </script>
 </body>
