@@ -136,13 +136,7 @@ Este software fue construido dentro del marco académico institucional del "Proy
 
 ---
 
-## 9. Capturas de pantalla o demo
-
-*(NO APLICA)*
-
----
-
-## 10. Información de contacto
+## 9. Información de contacto
 
 Para aclaraciones sobre la arquitectura del sistema, reportes de fallos en el manejo de transacciones con PostgreSQL o dudas técnicas del cliente JavaFX, puedes ponerte en contacto con el equipo de desarrollo a través de:
 
