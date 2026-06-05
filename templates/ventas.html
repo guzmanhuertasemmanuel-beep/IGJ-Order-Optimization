@@ -271,7 +271,7 @@
                         <td>${badgeMetodo(p.metodo_pago)}</td>
                         <td>${badgeEstado(p.estado)}</td>
                         <td style="text-align:left;max-width:260px;white-space:normal">${p.detalle_productos || '—'}</td>
-                        <td><button class="btn btn-outline btn-sm" id="btn-print-${p.id_pedido}" onclick="reimprimirTicket(${p.id_pedido}, this)">🖨️</button></td>
+                        <td><button class="btn btn-outline btn-sm" onclick="abrirTicket(${p.id_pedido})">🖨️</button></td>
                     </tr>
                 `).join('');
             } catch (e) { console.error('pedidos:', e); }
@@ -294,25 +294,12 @@
             cargarPedidos();
         }
 
-        async function reimprimirTicket(idPedido, boton) {
-            boton.disabled = true;
-            const textoOriginal = boton.textContent;
-            boton.textContent = '⏳';
-            try {
-                const r = await fetch(`/api/imprimir_ticket/${idPedido}`, { method: 'POST' });
-                const d = await r.json();
-                if (d.impresion_ok) {
-                    boton.textContent = '✅';
-                } else {
-                    boton.textContent = '❌';
-                }
-            } catch (e) {
-                boton.textContent = '❌';
-            }
-            setTimeout(() => {
-                boton.textContent = textoOriginal;
-                boton.disabled = false;
-            }, 2500);
+        function abrirTicket(idPedido) {
+            window.open(
+                `/ticket/${idPedido}`,
+                `ticket_${idPedido}`,
+                'width=420,height=650,scrollbars=yes,resizable=yes'
+            );
         }
 
         actualizarTodo();

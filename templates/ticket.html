@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket #{{ id_pedido }}</title>
+    <style>
+        @page {
+            size: 58mm auto;
+            margin: 0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #d6dce4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 32px 16px;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+        }
+
+        .vista-previa-titulo {
+            font-size: 13px;
+            color: #5a6a7a;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .ticket {
+            width: 48mm;
+            background: #ffffff;
+            padding: 3mm 2.5mm;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 10px;
+            line-height: 1.5;
+            color: #000000;
+            box-shadow:
+                0 1px 3px rgba(0, 0, 0, 0.12),
+                0 8px 24px rgba(0, 0, 0, 0.18);
+            border-radius: 0 0 3px 3px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .ticket::before {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 4px;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 3px,
+                #d6dce4 3px,
+                #d6dce4 6px
+            );
+            margin-bottom: 2mm;
+        }
+
+        .ticket-encabezado {
+            text-align: center;
+            padding: 1.5mm 0;
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
+        }
+
+        .ticket-negocio {
+            font-weight: bold;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        .ticket-info {
+            padding: 2mm 0 1mm 0;
+        }
+
+        .ticket-fila {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3mm 0;
+        }
+
+        .ticket-separador {
+            border: none;
+            border-top: 1px dashed #000;
+            margin: 1.5mm 0;
+        }
+
+        .ticket-productos {
+            padding: 1mm 0;
+        }
+
+        .ticket-producto {
+            display: flex;
+            justify-content: space-between;
+            gap: 1mm;
+            padding: 0.3mm 0;
+        }
+
+        .ticket-producto-nombre {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .ticket-producto-precio {
+            white-space: nowrap;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .ticket-total-bloque {
+            padding: 1mm 0;
+        }
+
+        .ticket-total {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 0.5mm 0;
+        }
+
+        .ticket-metodo {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3mm 0;
+        }
+
+        .ticket-footer {
+            text-align: center;
+            padding: 2mm 0 1mm 0;
+            border-top: 2px solid #000;
+            font-size: 9px;
+            line-height: 1.7;
+        }
+
+        .acciones-impresion {
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-accion {
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-accion:active {
+            transform: scale(0.97);
+        }
+
+        .btn-imprimir {
+            background: #004581;
+            color: #ffffff;
+        }
+
+        .btn-imprimir:hover {
+            background: #003060;
+        }
+
+        .btn-cerrar {
+            background: #6c757d;
+            color: #ffffff;
+        }
+
+        .btn-cerrar:hover {
+            background: #495057;
+        }
+
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+                margin: 0;
+                display: block;
+            }
+
+            .vista-previa-titulo {
+                display: none !important;
+            }
+
+            .ticket {
+                box-shadow: none;
+                border-radius: 0;
+                width: 48mm;
+                padding: 0 1mm;
+                margin: 0;
+            }
+
+            .ticket::before {
+                display: none;
+            }
+
+            .acciones-impresion {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <span class="vista-previa-titulo">Vista previa del ticket</span>
+
+    <div class="ticket">
+        <div class="ticket-encabezado">
+            <div class="ticket-negocio">CAFETERIA IGJ</div>
+        </div>
+
+        <div class="ticket-info">
+            <div class="ticket-fila">
+                <span>Pedido:</span>
+                <span>#{{ id_pedido }}</span>
+            </div>
+            <div class="ticket-fila">
+                <span>Cliente:</span>
+                <span>{{ nombre_cliente }}</span>
+            </div>
+            <div class="ticket-fila">
+                <span>Fecha:</span>
+                <span>{{ fecha }}</span>
+            </div>
+            <div class="ticket-fila">
+                <span>Hora:</span>
+                <span>{{ hora }}</span>
+            </div>
+        </div>
+
+        <hr class="ticket-separador">
+
+        <div class="ticket-productos">
+            {% for prod in productos %}
+            <div class="ticket-producto">
+                <span class="ticket-producto-nombre">{{ prod.cantidad }}x {{ prod.nombre }}</span>
+                <span class="ticket-producto-precio">${{ "%.2f"|format(prod.subtotal) }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <hr class="ticket-separador">
+
+        <div class="ticket-total-bloque">
+            <div class="ticket-total">
+                <span>TOTAL:</span>
+                <span>${{ "%.2f"|format(total) }}</span>
+            </div>
+            <div class="ticket-metodo">
+                <span>Pago:</span>
+                <span>{{ metodo_display }}</span>
+            </div>
+        </div>
+
+        <div class="ticket-footer">
+            Gracias por tu compra!<br>
+            Te esperamos pronto
+        </div>
+    </div>
+
+    <div class="acciones-impresion">
+        <button class="btn-accion btn-imprimir" onclick="window.print()">🖨️ Imprimir Ticket</button>
+        <button class="btn-accion btn-cerrar" onclick="window.close()">✕ Cerrar</button>
+    </div>
+</body>
+</html>

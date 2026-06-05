@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, session
 from postgres_manager import conectar_postgres
-from impresora import imprimir_ticket, construir_datos_reimpresion
 import datetime
 
 ventas_bp = Blueprint('ventas', __name__)
@@ -177,10 +176,10 @@ def api_pedidos():
         return jsonify({"error": str(e)}), 500
 
 
-@ventas_bp.route("/api/imprimir_ticket/<int:id_pedido>", methods=["POST"])
-def api_imprimir_ticket(id_pedido):
+@ventas_bp.route("/ticket/<int:id_pedido>")
+def ver_ticket(id_pedido):
     if not session.get("logueado"):
-        return jsonify({"error": "No autorizado"}), 403
+        return redirect("/login")
     conexion = None
     try:
         conexion = conectar_postgres()
@@ -194,16 +193,42 @@ def api_imprimir_ticket(id_pedido):
         fila = cursor.fetchone()
         if not fila:
             conexion.close()
-            return jsonify({"error": "Pedido no encontrado", "impresion_ok": False}), 404
+            return "Pedido no encontrado", 404
 
-        datos_ticket = construir_datos_reimpresion(fila, cursor)
+        productos_detalle = []
+        for item in (fila[2] or "").split(", "):
+            partes = item.split("x ", 1)
+            if len(partes) == 2 and partes[0].strip().isdigit():
+                cantidad = int(partes[0].strip())
+                nombre = partes[1].strip()
+                cursor.execute(
+                    "SELECT precio FROM Productos WHERE nombre = %s",
+                    (nombre,)
+                )
+                resultado = cursor.fetchone()
+                precio_unitario = float(resultado[0]) if resultado else 0.0
+                productos_detalle.append({
+                    "nombre": nombre,
+                    "cantidad": cantidad,
+                    "subtotal": cantidad * precio_unitario
+                })
+
         conexion.close()
-        imprimir_ticket(datos_ticket)
-        return jsonify({"impresion_ok": True})
+
+        fecha_str = fila[3].strftime("%d/%m/%Y") if hasattr(fila[3], "strftime") else str(fila[3])
+        hora_str = str(fila[4])[:5] if fila[4] else "--:--"
+        metodo = "Efectivo" if fila[6] == "efectivo" else "Tarjeta"
+
+        return render_template("ticket.html",
+            id_pedido=fila[0],
+            nombre_cliente=fila[1] or "Cliente",
+            fecha=fecha_str,
+            hora=hora_str,
+            productos=productos_detalle,
+            total=float(fila[5] or 0),
+            metodo_display=metodo
+        )
     except Exception as e:
         if conexion:
-            try:
-                conexion.close()
-            except Exception:
-                pass
-        return jsonify({"error": str(e), "impresion_ok": False}), 500
+            conexion.close()
+        return jsonify({"error": str(e)}), 500
