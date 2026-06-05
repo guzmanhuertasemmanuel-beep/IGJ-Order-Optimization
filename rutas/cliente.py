@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify
 from postgres_manager import conectar_postgres
+from impresora import imprimir_ticket, construir_datos_reimpresion
 import datetime
 
 cliente_bp = Blueprint('cliente', __name__)
@@ -28,6 +29,7 @@ def nuevo_pedido():
         cursor = conexion.cursor()
 
         productos_pedidos = []
+        detalle_productos = []
         total_pagar = 0.0
 
         for llave, valor in request.form.items():
@@ -37,8 +39,15 @@ def nuevo_pedido():
                 cursor.execute("SELECT precio FROM Productos WHERE nombre = %s", (nombre_producto,))
                 resultado = cursor.fetchone()
                 if resultado:
-                    total_pagar += float(cantidad * resultado[0])
+                    precio_unitario = float(resultado[0])
+                    subtotal = cantidad * precio_unitario
+                    total_pagar += subtotal
                     productos_pedidos.append(f"{cantidad}x {nombre_producto}")
+                    detalle_productos.append({
+                        "nombre": nombre_producto,
+                        "cantidad": cantidad,
+                        "subtotal": subtotal
+                    })
 
         if not productos_pedidos:
             conexion.close()
@@ -51,14 +60,32 @@ def nuevo_pedido():
                 </div>
             """
 
-        cursor.execute("""
-        INSERT INTO Pedidos (nombre_cliente, producto, fecha_pedido, hora_pedido, estado, metodo_pago, total)
-        VALUES (%s, %s, %s, %s, 'Pendiente', %s, %s)
-        """, (cliente, ", ".join(productos_pedidos), datetime.date.today(),
-              datetime.datetime.now().strftime("%H:%M:%S"), metodo_pago, total_pagar))
+        fecha_actual = datetime.date.today()
+        hora_actual = datetime.datetime.now().strftime("%H:%M:%S")
 
+        cursor.execute("""
+            INSERT INTO Pedidos (nombre_cliente, producto, fecha_pedido, hora_pedido, estado, metodo_pago, total)
+            VALUES (%s, %s, %s, %s, 'Pendiente', %s, %s)
+            RETURNING id_pedido
+        """, (cliente, ", ".join(productos_pedidos), fecha_actual, hora_actual, metodo_pago, total_pagar))
+
+        id_pedido = cursor.fetchone()[0]
         conexion.commit()
         conexion.close()
+
+        try:
+            imprimir_ticket({
+                "id_pedido": id_pedido,
+                "nombre_cliente": cliente,
+                "fecha": fecha_actual.strftime("%d/%m/%Y"),
+                "hora": hora_actual[:5],
+                "productos": detalle_productos,
+                "total": total_pagar,
+                "metodo_pago": metodo_pago
+            })
+        except Exception:
+            pass
+
         return render_template("confirmacion.html", total=total_pagar)
     except Exception as e:
         if conexion:
@@ -98,12 +125,28 @@ def api_nuevo_pedido():
         cursor.execute("""
             INSERT INTO Pedidos (nombre_cliente, producto, fecha_pedido, hora_pedido, estado, metodo_pago, total)
             VALUES (%s, %s, %s, %s, 'Pendiente', %s, %s)
+            RETURNING id_pedido
         """, (nombre_cliente, producto, fecha_actual, hora_actual, metodo_pago, total))
+
+        id_pedido = cursor.fetchone()[0]
         conexion.commit()
+
+        impresion_ok = False
+        try:
+            datos_ticket = construir_datos_reimpresion(
+                (id_pedido, nombre_cliente, producto, fecha_actual, hora_actual, total, metodo_pago),
+                cursor
+            )
+            impresion_ok = imprimir_ticket(datos_ticket)
+        except Exception:
+            pass
+
         conexion.close()
-        return jsonify({"mensaje": "Pedido recibido en la cocina del IGJ"}), 201
+        return jsonify({
+            "mensaje": "Pedido recibido en la cocina del IGJ",
+            "impresion_ok": impresion_ok
+        }), 201
     except Exception as e:
-        print(f"[ERROR /api/nuevo_pedido] {type(e).__name__}: {e}")
         if conexion:
             conexion.rollback()
             conexion.close()

@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, session
 from postgres_manager import conectar_postgres
+from impresora import imprimir_ticket, construir_datos_reimpresion
 import datetime
 
 ventas_bp = Blueprint('ventas', __name__)
@@ -174,3 +175,35 @@ def api_pedidos():
             conexion.rollback()
             conexion.close()
         return jsonify({"error": str(e)}), 500
+
+
+@ventas_bp.route("/api/imprimir_ticket/<int:id_pedido>", methods=["POST"])
+def api_imprimir_ticket(id_pedido):
+    if not session.get("logueado"):
+        return jsonify({"error": "No autorizado"}), 403
+    conexion = None
+    try:
+        conexion = conectar_postgres()
+        cursor = conexion.cursor()
+        cursor.execute("""
+            SELECT id_pedido, nombre_cliente, producto, fecha_pedido,
+                   hora_pedido, total, metodo_pago
+            FROM Pedidos
+            WHERE id_pedido = %s
+        """, (id_pedido,))
+        fila = cursor.fetchone()
+        if not fila:
+            conexion.close()
+            return jsonify({"error": "Pedido no encontrado", "impresion_ok": False}), 404
+
+        datos_ticket = construir_datos_reimpresion(fila, cursor)
+        conexion.close()
+        imprimir_ticket(datos_ticket)
+        return jsonify({"impresion_ok": True})
+    except Exception as e:
+        if conexion:
+            try:
+                conexion.close()
+            except Exception:
+                pass
+        return jsonify({"error": str(e), "impresion_ok": False}), 500

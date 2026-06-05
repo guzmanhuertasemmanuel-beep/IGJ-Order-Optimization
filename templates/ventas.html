@@ -167,11 +167,12 @@
                             <th>Método de Pago</th>
                             <th>Estado</th>
                             <th>Detalle de Productos</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tabla-pedidos-body">
                         <tr>
-                            <td colspan="6" class="tabla-cargando">⏳ Cargando pedidos…</td>
+                            <td colspan="7" class="tabla-cargando">⏳ Cargando pedidos…</td>
                         </tr>
                     </tbody>
                 </table>
@@ -258,7 +259,7 @@
                 document.getElementById('contador-pedidos').textContent = `${d.total_registros} registros`;
 
                 if (d.pedidos.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="tabla-vacia">Sin resultados para los filtros aplicados.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" class="tabla-vacia">Sin resultados para los filtros aplicados.</td></tr>`;
                     return;
                 }
 
@@ -270,6 +271,7 @@
                         <td>${badgeMetodo(p.metodo_pago)}</td>
                         <td>${badgeEstado(p.estado)}</td>
                         <td style="text-align:left;max-width:260px;white-space:normal">${p.detalle_productos || '—'}</td>
+                        <td><button class="btn btn-outline btn-sm" id="btn-print-${p.id_pedido}" onclick="reimprimirTicket(${p.id_pedido}, this)">🖨️</button></td>
                     </tr>
                 `).join('');
             } catch (e) { console.error('pedidos:', e); }
@@ -290,6 +292,27 @@
             cargarResumen();
             cargarMetodosPago();
             cargarPedidos();
+        }
+
+        async function reimprimirTicket(idPedido, boton) {
+            boton.disabled = true;
+            const textoOriginal = boton.textContent;
+            boton.textContent = '⏳';
+            try {
+                const r = await fetch(`/api/imprimir_ticket/${idPedido}`, { method: 'POST' });
+                const d = await r.json();
+                if (d.impresion_ok) {
+                    boton.textContent = '✅';
+                } else {
+                    boton.textContent = '❌';
+                }
+            } catch (e) {
+                boton.textContent = '❌';
+            }
+            setTimeout(() => {
+                boton.textContent = textoOriginal;
+                boton.disabled = false;
+            }, 2500);
         }
 
         actualizarTodo();
